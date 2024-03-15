@@ -2,58 +2,97 @@ import { nanoid } from "nanoid";
 import {
 	App,
 	Editor,
+	ItemView,
 	MarkdownView,
 	Modal,
 	Notice,
 	Plugin,
 	PluginSettingTab,
 	Setting,
+	WorkspaceLeaf,
+	request,
+	requestUrl,
 } from "obsidian";
 import { Replicache, TEST_LICENSE_KEY } from "replicache";
+import { Message } from "types";
 import { Users } from "zigzag-networking/db/schema";
+import { render } from "solid-js/web";
+import Zigzag from "./components/Zigzag";
 // Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
-	mySetting: string;
+	workerurl: string;
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: "default",
+	workerurl: "default",
 };
+
+export class ZigzagView extends ItemView {
+	iconName: string;
+	listeners: any[];
+	dispose: any;
+
+	constructor(leaf: WorkspaceLeaf, iconName: string) {
+		super(leaf);
+		this.iconName = iconName;
+	}
+
+	getViewType(): string {
+		return "zigzag-view";
+	}
+
+	getDisplayText(): string {
+		return "Zigzag view";
+	}
+
+	getIcon(): string {
+		return this.iconName;
+	}
+
+	async onOpen() {
+		const root = this.containerEl.children[1];
+		const wrapper = root.createEl("div");
+		let dock: HTMLElement | ShadowRoot;
+
+		wrapper.classList.add("obsidian-zigzag");
+
+		dock = wrapper;
+
+		this.dispose = render(() => Zigzag(), dock);
+	}
+
+	async onClose() {
+		this.dispose();
+	}
+}
 
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
+	private zigzagView: ZigzagView;
+
+	private readonly toggleZigZag = async (): Promise<void> => {
+		const { workspace } = this.app;
+		const existing = workspace.getLeavesOfType("zigzag-view");
+
+		if (existing.length > 0) {
+			workspace.detachLeavesOfType("zigzag-view");
+		} else {
+			await workspace.getLeaf(false).setViewState({
+				type: "zigzag-view",
+				active: true,
+			});
+
+			workspace.revealLeaf(workspace.getLeavesOfType("zigzag-view")[0]);
+		}
+	};
 
 	async onload() {
 		await this.loadSettings();
 
-		const userExample: Users = {
-			id: nanoid(),
-			textModifiers: "hecc",
-			intModifiers: true,
-		};
-
-		let tick = 0;
-
-		setInterval(() => tick++, 1000);
-
-		const rep = process
-			? new Replicache({
-					name: "replicache baybee",
-					licenseKey: TEST_LICENSE_KEY,
-					pushURL: "/api/replicache-push",
-					pullURL: "/api/replicache-pull",
-			  })
-			: null;
-
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon(
-			"dice",
-			"Sample Plugin",
-			(evt: MouseEvent) => {
-				// Called when the user clicks the icon.
-				new Notice("This is a notice!");
-			}
+		const ribbonIconEl = this.addRibbonIcon("bracket-glyph", "Zigzag", () =>
+			this.toggleZigZag()
 		);
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass("my-plugin-ribbon-class");
@@ -62,32 +101,16 @@ export default class MyPlugin extends Plugin {
 		const statusBarItemEl = this.addStatusBarItem();
 		statusBarItemEl.setText("Status Bar Text");
 
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: "open-sample-modal-simple",
-			name: "Open sample modal (simple)",
-			callback: () => {
-				new SampleModal(this.app).open();
-			},
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: "sample-editor-command",
-			name: "Sample editor command",
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection("Sample Editor Command");
-			},
-		});
+		this.registerView(
+			"zigzag-view",
+			(leaf) => (this.zigzagView = new ZigzagView(leaf, "bracket-glyph"))
+		);
 
 		this.addCommand({
 			id: "zigzag",
 			name: "zigzag",
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				console.log(editor.getSelection());
-				editor.replaceSelection(
-					`${userExample.id} + ${userExample.textModifiers}`
-				);
 			},
 		});
 
@@ -199,14 +222,14 @@ class SampleSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Setting #1")
-			.setDesc("It's a secret")
+			.setName("worker url")
+			.setDesc("provide your own worker (follow this guide)")
 			.addText((text) =>
 				text
-					.setPlaceholder("Enter your secret")
-					.setValue(this.plugin.settings.mySetting)
+					.setPlaceholder("Enter your url")
+					.setValue(this.plugin.settings.workerurl)
 					.onChange(async (value) => {
-						this.plugin.settings.mySetting = value;
+						this.plugin.settings.workerurl = value;
 						await this.plugin.saveSettings();
 					})
 			);
