@@ -8,5 +8,6 @@ yarn.lock
 # Output of 'npm pack'
 *.tgz
 
+.wrangler
 wrangler.toml
 drizzle
