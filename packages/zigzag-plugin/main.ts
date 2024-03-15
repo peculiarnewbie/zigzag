@@ -10,7 +10,7 @@ import {
 	Setting,
 } from "obsidian";
 import { Replicache, TEST_LICENSE_KEY } from "replicache";
-
+import { Users } from "zigzag-networking/db/schema";
 // Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
@@ -26,6 +26,12 @@ export default class MyPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+
+		const userExample: Users = {
+			id: nanoid(),
+			textModifiers: "hecc",
+			intModifiers: true,
+		};
 
 		let tick = 0;
 
@@ -79,7 +85,9 @@ export default class MyPlugin extends Plugin {
 			name: "zigzag",
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				console.log(editor.getSelection());
-				editor.replaceSelection(rep?.name as string);
+				editor.replaceSelection(
+					`${userExample.id} + ${userExample.textModifiers}`
+				);
 			},
 		});
 
