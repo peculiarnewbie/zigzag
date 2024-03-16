@@ -13,8 +13,9 @@
 		"strictNullChecks": true,
 		"lib": ["DOM", "ES5", "ES6", "ES7", "DOM.Iterable"],
 		"jsx": "preserve",
-		"jsxImportSource": "solid-js"
+		"jsxImportSource": "solid-js",
+		"plugins": [{ "name": "@tokenami/ts-plugin" }]
 	},
-	"include": ["**/*.ts"],
+	"include": ["tokenami/tokenami.env.d.ts", "**/*.ts", "**/*.tsx"],
 	"exclude": ["node_modules/*"]
 }

@@ -13,9 +13,6 @@ import {
 	request,
 	requestUrl,
 } from "obsidian";
-import { Replicache, TEST_LICENSE_KEY } from "replicache";
-import { Message } from "types";
-import { Users } from "zigzag-networking/db/schema";
 import { render } from "solid-js/web";
 import Zigzag from "./components/Zigzag";
 // Remember to rename these classes and interfaces!
