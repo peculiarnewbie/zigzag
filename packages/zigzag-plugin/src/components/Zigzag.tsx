@@ -1,6 +1,13 @@
-import { For, createContext, createSignal } from "solid-js";
+import { For, createContext, createEffect, createSignal } from "solid-js";
 import { css, type TokenamiStyle } from "@tokenami/css";
-import { MetadataCache, TFile, Vault, getAllTags } from "obsidian";
+import {
+	MetadataCache,
+	TFile,
+	Vault,
+	getAllTags,
+	moment,
+	setIcon,
+} from "obsidian";
 import {
 	Issue,
 	PriorityKeys,
@@ -13,7 +20,6 @@ import IssueListItem from "./IssueListItem";
 export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 	const VaultContext = createContext();
 	let checkbox: HTMLInputElement | undefined;
-	const [count, setCount] = createSignal(0);
 	const [issues, setIssues] = createSignal<Issue[]>();
 
 	const toggleCheck = () => {
@@ -46,6 +52,8 @@ export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 		setIssues(issuesFromVault);
 	};
 
+	createEffect(() => pullIssues());
+
 	return (
 		<VaultContext.Provider value={props.vault}>
 			<div>
@@ -64,11 +72,13 @@ const parseIssue = async (file: TFile, vault: Vault, cache: MetadataCache) => {
 
 	let status = StatusKeys.Backlog;
 	let priority = PriorityKeys.NoPriority;
+	let created = "";
 	let description = "description";
 
 	if (fileCache?.frontmatter) {
 		status = fileCache.frontmatter.status ?? status;
 		priority = fileCache.frontmatter.priority ?? priority;
+		created = fileCache.frontmatter.created ?? created;
 	}
 
 	if (fileCache?.sections && fileCache.headings) {
@@ -103,6 +113,7 @@ const parseIssue = async (file: TFile, vault: Vault, cache: MetadataCache) => {
 		status: status as StatusType,
 		priority: priority as PriorityType,
 		description: description,
+		created: created,
 	};
 
 	return issue;

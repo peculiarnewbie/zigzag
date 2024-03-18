@@ -21,7 +21,7 @@ export type StatusType = (typeof StatusKeys)[keyof typeof StatusKeys];
 export const PriorityKeys = {
 	NoPriority: "No priority",
 	Urgent: "Urgent",
-	Hight: "High",
+	High: "High",
 	Medium: "Medium",
 	Low: "Low",
 } as const;
@@ -33,6 +33,7 @@ export type Issue = {
 	description: string;
 	status: StatusType;
 	priority: PriorityType;
+	created: string;
 };
 
 /*

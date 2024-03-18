@@ -10,8 +10,10 @@ export default createConfig({
 		border: { red: "solid 1rem red" },
 		color: {
 			"blue-400": "#2323ff",
-			"--interactive-accent": "var(--interactive-accent)",
+			"interactive-accent": "var(--interactive-accent)",
 			bg: "--background-primary",
+			"icon-color": "var(--icon-color)",
+			"text-muted": "var(--text-muted)",
 		},
 		ease: {},
 		"font-size": {},
@@ -23,8 +25,19 @@ export default createConfig({
 		surface: {},
 		tracking: {},
 		transition: {},
-		weight: {},
+		weight: {
+			bold: "var(--bold-weight)",
+		},
 		z: {},
-		"color-accent-1": {},
+	},
+	aliases: {
+		bg: ["background-color"],
+		p: ["padding"],
+		py: ["padding-top", "padding-bottom"],
+		px: ["padding-left", "padding-right"],
+		h: ["height"],
+		w: ["width"],
+		"set-y": ["align-items"],
+		"set-x": ["justify-content"],
 	},
 });
