@@ -4,6 +4,7 @@ import {
 	Editor,
 	ItemView,
 	MarkdownView,
+	MetadataCache,
 	Modal,
 	Notice,
 	Plugin,
@@ -31,11 +32,18 @@ export class ZigzagView extends ItemView {
 	listeners: any[];
 	dispose: any;
 	vault: Vault;
+	cache: MetadataCache;
 
-	constructor(leaf: WorkspaceLeaf, iconName: string, vault: Vault) {
+	constructor(
+		leaf: WorkspaceLeaf,
+		iconName: string,
+		vault: Vault,
+		metadataCache: MetadataCache,
+	) {
 		super(leaf);
 		this.iconName = iconName;
 		this.vault = vault;
+		this.cache = metadataCache;
 	}
 
 	getViewType(): string {
@@ -59,7 +67,10 @@ export class ZigzagView extends ItemView {
 
 		dock = wrapper;
 
-		this.dispose = render(() => Zigzag({ vault: this.vault }), dock);
+		this.dispose = render(
+			() => Zigzag({ vault: this.vault, cache: this.cache }),
+			dock,
+		);
 	}
 
 	async onClose() {
@@ -101,7 +112,7 @@ export default class MyPlugin extends Plugin {
 		const statusBarItemEl = this.addStatusBarItem();
 		statusBarItemEl.setText("Status Bar Text");
 
-		const { vault } = this.app;
+		const { vault, metadataCache } = this.app;
 
 		this.registerView(
 			"zigzag-view",
@@ -110,6 +121,7 @@ export default class MyPlugin extends Plugin {
 					leaf,
 					"bracket-glyph",
 					vault,
+					metadataCache,
 				)),
 		);
 
