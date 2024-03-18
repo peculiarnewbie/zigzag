@@ -1,6 +1,13 @@
-import { createContext, createSignal } from "solid-js";
+import { For, createContext, createEffect, createSignal } from "solid-js";
 import { css, type TokenamiStyle } from "@tokenami/css";
-import { MetadataCache, TFile, Vault, getAllTags } from "obsidian";
+import {
+	MetadataCache,
+	TFile,
+	Vault,
+	getAllTags,
+	moment,
+	setIcon,
+} from "obsidian";
 import {
 	Issue,
 	PriorityKeys,
@@ -8,12 +15,12 @@ import {
 	StatusKeys,
 	StatusType,
 } from "src/types";
+import IssueListItem from "./IssueListItem";
 
 export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 	const VaultContext = createContext();
 	let checkbox: HTMLInputElement | undefined;
-	const [count, setCount] = createSignal(0);
-	const [stuff, setStuff] = createSignal("");
+	const [issues, setIssues] = createSignal<Issue[]>();
 
 	const toggleCheck = () => {
 		if (checkbox === undefined) return;
@@ -22,7 +29,7 @@ export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 		else checkbox.dataset.checked = "false";
 	};
 
-	const changeStuff = async () => {
+	const pullIssues = async () => {
 		const issuesFiles = await Promise.all(
 			props.vault.getMarkdownFiles().filter((md) => {
 				const fileCache = props.cache.getFileCache(md);
@@ -36,20 +43,26 @@ export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 			}),
 		);
 
-		const issues = await Promise.all(
+		const issuesFromVault = await Promise.all(
 			issuesFiles.map((file) =>
 				parseIssue(file, props.vault, props.cache),
 			),
 		);
 
-		setStuff(JSON.stringify(issues));
+		setIssues(issuesFromVault);
 	};
+
+	createEffect(() => pullIssues());
 
 	return (
 		<VaultContext.Provider value={props.vault}>
 			<div>
-				<button onclick={changeStuff}>show stuff</button>
-				<p>{stuff()}</p>
+				<For each={issues()}>
+					{(issue) => <IssueListItem issue={issue} />}
+				</For>
+				<button style={{ "margin-top": "8px" }} onclick={pullIssues}>
+					refresh
+				</button>
 			</div>
 		</VaultContext.Provider>
 	);
@@ -61,11 +74,13 @@ const parseIssue = async (file: TFile, vault: Vault, cache: MetadataCache) => {
 
 	let status = StatusKeys.Backlog;
 	let priority = PriorityKeys.NoPriority;
+	let created = "";
 	let description = "description";
 
 	if (fileCache?.frontmatter) {
 		status = fileCache.frontmatter.status ?? status;
 		priority = fileCache.frontmatter.priority ?? priority;
+		created = fileCache.frontmatter.created ?? created;
 	}
 
 	if (fileCache?.sections && fileCache.headings) {
@@ -100,6 +115,7 @@ const parseIssue = async (file: TFile, vault: Vault, cache: MetadataCache) => {
 		status: status as StatusType,
 		priority: priority as PriorityType,
 		description: description,
+		created: created,
 	};
 
 	return issue;
