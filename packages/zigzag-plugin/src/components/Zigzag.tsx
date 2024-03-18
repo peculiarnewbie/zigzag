@@ -1,17 +1,22 @@
 import { createSignal } from "solid-js";
-import { css } from "@tokenami/css";
+import { css, type TokenamiStyle } from "@tokenami/css";
 
 const lmao = css.compose({
-	"--background-color": "var(--color_slate-100)",
-	"--color": "var(--color_slate-700)",
+	"--color": "var(--color_--interactive-accent)",
+	"--font-size": "var(---, 50pt)",
+	"--border": "var(---, solid red)",
 });
 
+const cssVariables = {
+	interactive: "var(--interactive-accent)",
+};
+
 export default function Zigzag() {
-	let checkbox: HTMLInputElement | undefined = undefined;
+	let checkbox: HTMLInputElement | undefined;
 	const [count, setCount] = createSignal(0);
 
 	const toggleCheck = () => {
-		if (!checkbox) return;
+		if (checkbox === undefined) return;
 		const checked = checkbox.dataset.checked;
 		if (checked === "false") checkbox.dataset.checked = "true";
 		else checkbox.dataset.checked = "false";
@@ -19,9 +24,19 @@ export default function Zigzag() {
 
 	return (
 		<div>
-			<button onclick={() => setCount(count() + 1)}>plus</button>
+			<button class="mod-cta" onclick={() => setCount(count() + 1)}>
+				add
+			</button>
+
 			<div style={lmao()}>
-				<p style={css({ "--padding": 10 })}>{count()}</p>
+				<div
+					style={css({
+						"--background-color":
+							"var(--color_--interactive-accent)",
+					})}
+				>
+					<p style={css({ "--padding": 10 })}>{count()}</p>
+				</div>
 			</div>
 			<input
 				type="checkbox"
@@ -29,7 +44,7 @@ export default function Zigzag() {
 				onclick={toggleCheck}
 				ref={checkbox}
 			/>
-			<div>hii</div>
+			<div style={css({ "--color": "var(--color_blue-400)" })}>hii</div>
 		</div>
 	);
 }

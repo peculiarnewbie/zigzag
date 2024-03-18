@@ -7,11 +7,11 @@ export default createConfig({
 	theme: {
 		alpha: {},
 		anim: {},
-		border: {},
+		border: { red: "solid 1rem red" },
 		color: {
-			"slate-100": "#f1f5f9",
-			"slate-700": "#334155",
-			"sky-500": "#0ea5e9",
+			"blue-400": "#2323ff",
+			"--interactive-accent": "var(--interactive-accent)",
+			bg: "--background-primary",
 		},
 		ease: {},
 		"font-size": {},
@@ -25,5 +25,6 @@ export default createConfig({
 		transition: {},
 		weight: {},
 		z: {},
+		"color-accent-1": {},
 	},
 });
