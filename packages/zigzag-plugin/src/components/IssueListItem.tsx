@@ -13,11 +13,19 @@ const Icon = css.compose({
 	"--display": "flex",
 	"--set-y": "center",
 	"--color": "var(--color_icon-color)",
+	//@ts-expect-error
+	"--icon-size": "var(--icon-s)",
 });
 
 export default function IssueListItem(props: { issue: Issue }) {
 	return (
-		<div style={css({ "--display": "flex", "--set-x": "space-between" })}>
+		<div
+			style={css({
+				"--display": "flex",
+				"--set-x": "space-between",
+				"--border-bottom": "var(--border_standard)",
+			})}
+		>
 			<div
 				style={css({
 					"--display": "flex",
@@ -36,7 +44,13 @@ export default function IssueListItem(props: { issue: Issue }) {
 					{props.issue.title}
 				</div>
 			</div>
-			<div style={css({ "--color": "var(--color_text-muted)" })}>
+			<div
+				style={css({
+					"--color": "var(--color_text-muted)",
+					"--display": "flex",
+					"--set-y": "center",
+				})}
+			>
 				{moment(props.issue.created, "YYYY-MM-DD").format("DD MMM")}
 			</div>
 		</div>
@@ -93,5 +107,5 @@ function PriorityIcon(props: { priority: PriorityType }) {
 		}
 	});
 
-	return <div style={Icon()} ref={el}></div>;
+	return <div style={{ ...Icon() }} ref={el}></div>;
 }

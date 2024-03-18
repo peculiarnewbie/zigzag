@@ -7,7 +7,7 @@ export default createConfig({
 	theme: {
 		alpha: {},
 		anim: {},
-		border: { red: "solid 1rem red" },
+		border: { standard: "1px solid var(--background-modifier-border)" },
 		color: {
 			"blue-400": "#2323ff",
 			"interactive-accent": "var(--interactive-accent)",

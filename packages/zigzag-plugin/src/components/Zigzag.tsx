@@ -57,10 +57,12 @@ export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 	return (
 		<VaultContext.Provider value={props.vault}>
 			<div>
-				<button onclick={pullIssues}>show stuff</button>
 				<For each={issues()}>
 					{(issue) => <IssueListItem issue={issue} />}
 				</For>
+				<button style={{ "margin-top": "8px" }} onclick={pullIssues}>
+					refresh
+				</button>
 			</div>
 		</VaultContext.Provider>
 	);
