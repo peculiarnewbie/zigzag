@@ -9,6 +9,7 @@ import {
 	Plugin,
 	PluginSettingTab,
 	Setting,
+	Vault,
 	WorkspaceLeaf,
 	request,
 	requestUrl,
@@ -29,10 +30,12 @@ export class ZigzagView extends ItemView {
 	iconName: string;
 	listeners: any[];
 	dispose: any;
+	vault: Vault;
 
-	constructor(leaf: WorkspaceLeaf, iconName: string) {
+	constructor(leaf: WorkspaceLeaf, iconName: string, vault: Vault) {
 		super(leaf);
 		this.iconName = iconName;
+		this.vault = vault;
 	}
 
 	getViewType(): string {
@@ -56,7 +59,7 @@ export class ZigzagView extends ItemView {
 
 		dock = wrapper;
 
-		this.dispose = render(() => Zigzag(), dock);
+		this.dispose = render(() => Zigzag({ vault: this.vault }), dock);
 	}
 
 	async onClose() {
@@ -89,7 +92,7 @@ export default class MyPlugin extends Plugin {
 
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon("bracket-glyph", "Zigzag", () =>
-			this.toggleZigZag()
+			this.toggleZigZag(),
 		);
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass("my-plugin-ribbon-class");
@@ -98,9 +101,16 @@ export default class MyPlugin extends Plugin {
 		const statusBarItemEl = this.addStatusBarItem();
 		statusBarItemEl.setText("Status Bar Text");
 
+		const { vault } = this.app;
+
 		this.registerView(
 			"zigzag-view",
-			(leaf) => (this.zigzagView = new ZigzagView(leaf, "bracket-glyph"))
+			(leaf) =>
+				(this.zigzagView = new ZigzagView(
+					leaf,
+					"bracket-glyph",
+					vault,
+				)),
 		);
 
 		this.addCommand({
@@ -170,7 +180,7 @@ export default class MyPlugin extends Plugin {
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		this.registerInterval(
-			window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000)
+			window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000),
 		);
 	}
 
@@ -180,7 +190,7 @@ export default class MyPlugin extends Plugin {
 		this.settings = Object.assign(
 			{},
 			DEFAULT_SETTINGS,
-			await this.loadData()
+			await this.loadData(),
 		);
 	}
 
@@ -228,7 +238,7 @@ class SampleSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.workerurl = value;
 						await this.plugin.saveSettings();
-					})
+					}),
 			);
 	}
 }
