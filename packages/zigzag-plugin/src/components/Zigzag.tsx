@@ -1,19 +1,12 @@
-import { createSignal } from "solid-js";
+import { createContext, createSignal } from "solid-js";
 import { css, type TokenamiStyle } from "@tokenami/css";
+import { Vault } from "obsidian";
 
-const lmao = css.compose({
-	"--color": "var(--color_--interactive-accent)",
-	"--font-size": "var(---, 50pt)",
-	"--border": "var(---, solid red)",
-});
-
-const cssVariables = {
-	interactive: "var(--interactive-accent)",
-};
-
-export default function Zigzag() {
+export default function Zigzag(props: { vault: Vault }) {
+	const VaultContext = createContext();
 	let checkbox: HTMLInputElement | undefined;
 	const [count, setCount] = createSignal(0);
+	const [stuff, setStuff] = createSignal("");
 
 	const toggleCheck = () => {
 		if (checkbox === undefined) return;
@@ -22,29 +15,27 @@ export default function Zigzag() {
 		else checkbox.dataset.checked = "false";
 	};
 
-	return (
-		<div>
-			<button class="mod-cta" onclick={() => setCount(count() + 1)}>
-				add
-			</button>
+	const changeStuff = async () => {
+		const fileContents: string[] = await Promise.all(
+			props.vault
+				.getMarkdownFiles()
+				.map((file) => props.vault.cachedRead(file)),
+		);
 
-			<div style={lmao()}>
-				<div
-					style={css({
-						"--background-color":
-							"var(--color_--interactive-accent)",
-					})}
-				>
-					<p style={css({ "--padding": 10 })}>{count()}</p>
-				</div>
+		let totalLength = 0;
+		fileContents.forEach((content) => {
+			totalLength += content.length;
+		});
+
+		setStuff((totalLength / fileContents.length).toString());
+	};
+
+	return (
+		<VaultContext.Provider value={props.vault}>
+			<div>
+				<button onclick={changeStuff}>show stuff</button>
+				<p>{stuff()}</p>
 			</div>
-			<input
-				type="checkbox"
-				data-checked="false"
-				onclick={toggleCheck}
-				ref={checkbox}
-			/>
-			<div style={css({ "--color": "var(--color_blue-400)" })}>hii</div>
-		</div>
+		</VaultContext.Provider>
 	);
 }
