@@ -6,7 +6,7 @@ export type Message = {
 
 export type MessageWithID = Message & { id: string };
 
-const StatusKeys = {
+export const StatusKeys = {
 	Backlog: "Backglog",
 	Todo: "Todo",
 	InProgress: "In Progress",
@@ -16,9 +16,9 @@ const StatusKeys = {
 	Duplicate: "Duplicate",
 } as const;
 
-type StatusType = (typeof StatusKeys)[keyof typeof StatusKeys];
+export type StatusType = (typeof StatusKeys)[keyof typeof StatusKeys];
 
-const PriorityKeys = {
+export const PriorityKeys = {
 	NoPriority: "No priority",
 	Urgent: "Urgent",
 	Hight: "High",
@@ -26,7 +26,7 @@ const PriorityKeys = {
 	Low: "Low",
 } as const;
 
-type PriorityType = (typeof PriorityKeys)[keyof typeof PriorityKeys];
+export type PriorityType = (typeof PriorityKeys)[keyof typeof PriorityKeys];
 
 export type Issue = {
 	title: string;
