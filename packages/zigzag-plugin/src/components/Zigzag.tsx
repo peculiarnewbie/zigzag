@@ -1,4 +1,4 @@
-import { createContext, createSignal } from "solid-js";
+import { For, createContext, createSignal } from "solid-js";
 import { css, type TokenamiStyle } from "@tokenami/css";
 import { MetadataCache, TFile, Vault, getAllTags } from "obsidian";
 import {
@@ -8,12 +8,13 @@ import {
 	StatusKeys,
 	StatusType,
 } from "src/types";
+import IssueListItem from "./IssueListItem";
 
 export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 	const VaultContext = createContext();
 	let checkbox: HTMLInputElement | undefined;
 	const [count, setCount] = createSignal(0);
-	const [stuff, setStuff] = createSignal("");
+	const [issues, setIssues] = createSignal<Issue[]>();
 
 	const toggleCheck = () => {
 		if (checkbox === undefined) return;
@@ -22,7 +23,7 @@ export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 		else checkbox.dataset.checked = "false";
 	};
 
-	const changeStuff = async () => {
+	const pullIssues = async () => {
 		const issuesFiles = await Promise.all(
 			props.vault.getMarkdownFiles().filter((md) => {
 				const fileCache = props.cache.getFileCache(md);
@@ -36,20 +37,22 @@ export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 			}),
 		);
 
-		const issues = await Promise.all(
+		const issuesFromVault = await Promise.all(
 			issuesFiles.map((file) =>
 				parseIssue(file, props.vault, props.cache),
 			),
 		);
 
-		setStuff(JSON.stringify(issues));
+		setIssues(issuesFromVault);
 	};
 
 	return (
 		<VaultContext.Provider value={props.vault}>
 			<div>
-				<button onclick={changeStuff}>show stuff</button>
-				<p>{stuff()}</p>
+				<button onclick={pullIssues}>show stuff</button>
+				<For each={issues()}>
+					{(issue) => <IssueListItem issue={issue} />}
+				</For>
 			</div>
 		</VaultContext.Provider>
 	);

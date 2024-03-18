@@ -7,7 +7,7 @@ export type Message = {
 export type MessageWithID = Message & { id: string };
 
 export const StatusKeys = {
-	Backlog: "Backglog",
+	Backlog: "Backlog",
 	Todo: "Todo",
 	InProgress: "In Progress",
 	InReview: "In Review",
