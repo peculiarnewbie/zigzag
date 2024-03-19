@@ -1,3 +1,4 @@
-editor-placeholder::before {
+.editor-placeholder::before {
 	content: attr(data-empty-text);
+	color: var(--text-muted);
 }

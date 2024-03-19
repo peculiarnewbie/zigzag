@@ -11,7 +11,6 @@ export default function AddIssue() {
 			console.log("empty");
 			title.addClass("editor-placeholder");
 		} else {
-			console.log(value);
 			title.removeClass("editor-placeholder");
 		}
 	};
@@ -25,7 +24,7 @@ export default function AddIssue() {
 			<div>New Issue</div>
 			<div
 				ref={title}
-				class="cm-active HyperMD-header HyperMD-header-2 cm-line"
+				class="cm-active HyperMD-header HyperMD-header-2 cm-line editor-placeholder"
 				contentEditable={true}
 				data-empty-text="Issue Title"
 				oninput={checkEmpty}
