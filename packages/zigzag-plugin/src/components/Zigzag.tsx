@@ -16,6 +16,7 @@ import {
 	StatusType,
 } from "src/types";
 import IssueListItem from "./IssueListItem";
+import IssueListCategory from "./IssueListCategory";
 
 export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 	const VaultContext = createContext();
@@ -61,7 +62,12 @@ export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 
 	return (
 		<VaultContext.Provider value={props.vault}>
-			<div>
+			<div
+				style={css({
+					"--font-size": "var(--font-size_small)",
+				})}
+			>
+				<IssueListCategory itemsCount={issues()?.length ?? 0} />
 				<For each={issues()}>
 					{(issue) => <IssueListItem issue={issue} />}
 				</For>

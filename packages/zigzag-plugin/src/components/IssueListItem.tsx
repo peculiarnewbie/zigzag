@@ -24,6 +24,8 @@ export default function IssueListItem(props: { issue: Issue }) {
 				"--display": "flex",
 				"--set-x": "space-between",
 				"--border-bottom": "var(--border_standard)",
+				"--px": 4,
+				"--py": 1,
 			})}
 		>
 			<div
@@ -33,14 +35,18 @@ export default function IssueListItem(props: { issue: Issue }) {
 					"--set-y": "center",
 				})}
 			>
-				<input type="checkbox" />
+				<input style={{ "margin-right": "9px" }} type="checkbox" />
 				<PriorityIcon priority={props.issue.priority} />
 				<div style={{ width: "8px" }} />
 				<div>code</div>
 				<div style={{ width: "8px" }} />
 				<StatusIcon status={props.issue.status} />
 				<div style={{ width: "8px" }} />
-				<div style={css({ "--font-weight": "var(--weight_bold)" })}>
+				<div
+					style={css({
+						"--font-weight": "var(--weight_bold)",
+					})}
+				>
 					{props.issue.title}
 				</div>
 			</div>
@@ -49,6 +55,7 @@ export default function IssueListItem(props: { issue: Issue }) {
 					"--color": "var(--color_text-muted)",
 					"--display": "flex",
 					"--set-y": "center",
+					"--font-size": "var(--font-size_smaller)",
 				})}
 			>
 				{moment(props.issue.created, "YYYY-MM-DD").format("DD MMM")}
@@ -57,7 +64,7 @@ export default function IssueListItem(props: { issue: Issue }) {
 	);
 }
 
-function StatusIcon(props: { status: StatusType }) {
+export function StatusIcon(props: { status: StatusType }) {
 	let el!: HTMLDivElement;
 
 	createEffect(() => {
