@@ -16,7 +16,8 @@ export default function IssueListCategory(props: { itemsCount: number }) {
 				"--set-x": "space-between",
 				"--bg": "var(--color_bg-primary-alt)",
 				"--py": 1,
-				"--px": 4,
+				"--pl": 9,
+				"--pr": 6,
 			})}
 		>
 			<div

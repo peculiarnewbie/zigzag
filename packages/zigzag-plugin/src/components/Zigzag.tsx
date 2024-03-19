@@ -23,13 +23,6 @@ export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 	let checkbox: HTMLInputElement | undefined;
 	const [issues, setIssues] = createSignal<Issue[]>();
 
-	const toggleCheck = () => {
-		if (checkbox === undefined) return;
-		const checked = checkbox.dataset.checked;
-		if (checked === "false") checkbox.dataset.checked = "true";
-		else checkbox.dataset.checked = "false";
-	};
-
 	const pullIssues = async () => {
 		const issuesFiles = await Promise.all(
 			props.vault.getMarkdownFiles().filter((md) => {
@@ -63,9 +56,12 @@ export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 	return (
 		<VaultContext.Provider value={props.vault}>
 			<div
-				style={css({
-					"--font-size": "var(--font-size_small)",
-				})}
+				style={{
+					margin: "-16px",
+					...css({
+						"--font-size": "var(--font-size_small)",
+					}),
+				}}
 			>
 				<IssueListCategory itemsCount={issues()?.length ?? 0} />
 				<For each={issues()}>
