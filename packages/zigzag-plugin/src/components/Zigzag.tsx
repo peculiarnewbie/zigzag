@@ -52,7 +52,12 @@ export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 		setIssues(issuesFromVault);
 	};
 
-	createEffect(() => pullIssues());
+	createEffect(() => {
+		props.vault.on("rename", pullIssues);
+		props.cache.on("changed", pullIssues);
+
+		pullIssues();
+	});
 
 	return (
 		<VaultContext.Provider value={props.vault}>
