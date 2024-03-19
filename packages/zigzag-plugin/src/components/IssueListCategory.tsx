@@ -4,7 +4,10 @@ import { StatusKeys } from "src/types";
 import { createEffect } from "solid-js";
 import { setIcon } from "obsidian";
 
-export default function IssueListCategory(props: { itemsCount: number }) {
+export default function IssueListCategory(props: {
+	itemsCount: number;
+	openAddIssueModal: () => void;
+}) {
 	let plusButton!: HTMLDivElement;
 
 	createEffect(() => setIcon(plusButton, "plus"));
@@ -16,8 +19,8 @@ export default function IssueListCategory(props: { itemsCount: number }) {
 				"--set-x": "space-between",
 				"--bg": "var(--color_bg-primary-alt)",
 				"--py": 1,
-				"--pl": 9,
-				"--pr": 6,
+				"--pl": 6,
+				"--pr": 4,
 			})}
 		>
 			<div
@@ -48,6 +51,7 @@ export default function IssueListCategory(props: { itemsCount: number }) {
 				class="clickable-icon"
 				ref={plusButton}
 				style={{ width: "28px", height: "28px", padding: 0 }}
+				onclick={props.openAddIssueModal}
 			/>
 		</div>
 	);

@@ -1,0 +1,3 @@
+editor-placeholder::before {
+	content: attr(data-empty-text);
+}

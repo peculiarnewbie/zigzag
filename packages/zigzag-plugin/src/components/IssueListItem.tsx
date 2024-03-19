@@ -43,8 +43,8 @@ export default function IssueListItem(props: { issue: Issue }) {
 				"--set-x": "space-between",
 				"--border-bottom": "var(--border_standard)",
 				"--py": 1,
-				"--pr": 7.25,
-				"--pl": 3,
+				"--pl": 1,
+				"--pr": 5.25,
 			})}
 			onpointerenter={() => setHovered(true)}
 			onpointerleave={() => setHovered(false)}
@@ -58,7 +58,7 @@ export default function IssueListItem(props: { issue: Issue }) {
 			>
 				<div
 					style={css({
-						"--width": 5,
+						"--width": 4,
 						"--display": "flex",
 						"--set-y": "center",
 					})}
@@ -66,7 +66,6 @@ export default function IssueListItem(props: { issue: Issue }) {
 					<Show when={hovered() || selected()}>
 						<input
 							ref={checkbox}
-							style={{ "margin-right": "9px" }}
 							type="checkbox"
 							onclick={toggleCheck}
 						/>
