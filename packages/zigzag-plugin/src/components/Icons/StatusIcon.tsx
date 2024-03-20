@@ -28,20 +28,9 @@ export function StatusIcon(props: {
 }
 
 export const getStatus = (key: StatusValuesType) => {
-	switch (key) {
-		case StatusKeys.Backlog.value:
-			return StatusKeys.Backlog;
-		case StatusKeys.Cancelled.value:
-			return StatusKeys.Cancelled;
-		case StatusKeys.Done.value:
-			return StatusKeys.Done;
-		case StatusKeys.Duplicate.value:
-			return StatusKeys.Duplicate;
-		case StatusKeys.InProgress.value:
-			return StatusKeys.InProgress;
-		case StatusKeys.InReview.value:
-			return StatusKeys.InReview;
-		default:
-			return StatusKeys.Backlog;
-	}
+	return (
+		Array.from(Object.values(StatusKeys)).find(
+			(status) => status.value === key
+		) ?? StatusKeys.Backlog
+	);
 };

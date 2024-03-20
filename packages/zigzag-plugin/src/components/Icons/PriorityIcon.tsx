@@ -23,18 +23,9 @@ export function PriorityIcon(props: {
 }
 
 export const getPriority = (key: PriorityValuesType) => {
-	switch (key) {
-		case PriorityKeys.High.value:
-			return PriorityKeys.High;
-		case PriorityKeys.Low.value:
-			return PriorityKeys.Low;
-		case PriorityKeys.Medium.value:
-			return PriorityKeys.Medium;
-		case PriorityKeys.NoPriority.value:
-			return PriorityKeys.NoPriority;
-		case PriorityKeys.Urgent.value:
-			return PriorityKeys.Urgent;
-		default:
-			return PriorityKeys.NoPriority;
-	}
+	return (
+		Array.from(Object.values(PriorityKeys)).find(
+			(status) => status.value === key
+		) ?? PriorityKeys.NoPriority
+	);
 };
