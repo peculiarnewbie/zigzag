@@ -42,6 +42,8 @@ export default createConfig({
 		px: ["padding-left", "padding-right"],
 		pl: ["padding-left"],
 		pr: ["padding-right"],
+		pt: ["padding-top"],
+		pb: ["padding-bottom"],
 		mx: ["margin-left", "margin-right"],
 		h: ["height"],
 		w: ["width"],

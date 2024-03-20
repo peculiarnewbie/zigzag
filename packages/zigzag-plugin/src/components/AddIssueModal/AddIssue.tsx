@@ -3,7 +3,7 @@ import { createEffect } from "solid-js";
 
 export default function AddIssue() {
 	let parent!: HTMLDivElement;
-	let initialHeight: number;
+	let initialHeight = 0;
 
 	const checkEmpty = (e: InputEvent) => {
 		const el = e.target as HTMLDivElement;
@@ -22,10 +22,13 @@ export default function AddIssue() {
 	};
 
 	createEffect(() => {
+		initialHeight = parent.clientHeight;
+
+		document.documentElement.style.setProperty("--top-offset", `0px`);
+
 		//@ts-expect-error
 		parent.parentElement.parentElement.style.top =
 			"calc(-33vh + var(--top-offset))";
-		initialHeight = parent.clientHeight;
 	});
 	return (
 		<div ref={parent}>
@@ -34,6 +37,7 @@ export default function AddIssue() {
 					"--display": "flex",
 					"--gap": 2,
 					"--set-y": "center",
+					"--font-size": "var(--font-size_small)",
 				})}
 			>
 				<div
@@ -66,6 +70,7 @@ export default function AddIssue() {
 					"--min-height": 13,
 					"--max-height": 100,
 					"--overflow-y": "auto",
+					"--pb": 3,
 				})}
 			>
 				<div
@@ -75,6 +80,29 @@ export default function AddIssue() {
 					data-empty-text="Add description..."
 					oninput={checkEmpty}
 				/>
+			</div>
+			<div style={css({ "--pt": 1.5, "--pb": 3, "--display": "flex" })}>
+				<div>status</div>
+				<div>priority</div>
+			</div>
+			<div
+				style={{
+					...css({
+						"--h": 0.25,
+						"--bg": "var(--color_text-faint)",
+					}),
+					"margin-left": "-16px",
+					"margin-right": "-16px",
+				}}
+			/>
+			<div
+				style={css({
+					"--pt": 3,
+					"--display": "flex",
+					"--set-x": "end",
+				})}
+			>
+				<button class="mod-cta">Create Issue</button>
 			</div>
 		</div>
 	);
