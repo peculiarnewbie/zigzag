@@ -17,6 +17,8 @@ import {
 } from "obsidian";
 import { render } from "solid-js/web";
 import Zigzag from "./components/Zigzag";
+import { ZigzagView } from "./components/IssuesList/ZigzagView";
+import { AddIssueModal } from "./components/AddIssueModal/AddIssueModal";
 // Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
@@ -27,56 +29,9 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 	workerurl: "default",
 };
 
-export class ZigzagView extends ItemView {
-	iconName: string;
-	listeners: any[];
-	dispose: any;
-	vault: Vault;
-	cache: MetadataCache;
-
-	constructor(
-		leaf: WorkspaceLeaf,
-		iconName: string,
-		vault: Vault,
-		metadataCache: MetadataCache,
-	) {
-		super(leaf);
-		this.iconName = iconName;
-		this.vault = vault;
-		this.cache = metadataCache;
-	}
-
-	getViewType(): string {
-		return "zigzag-view";
-	}
-
-	getDisplayText(): string {
-		return "Zigzag view";
-	}
-
-	getIcon(): string {
-		return this.iconName;
-	}
-
-	async onOpen() {
-		const root = this.containerEl.children[1];
-		const wrapper = root.createEl("div");
-		let dock: HTMLElement | ShadowRoot;
-
-		wrapper.classList.add("obsidian-zigzag");
-
-		dock = wrapper;
-
-		this.dispose = render(
-			() => Zigzag({ vault: this.vault, cache: this.cache }),
-			dock,
-		);
-	}
-
-	async onClose() {
-		this.dispose();
-	}
-}
+export const openAddIssueModal = (app: App) => {
+	new AddIssueModal(app).open();
+};
 
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
@@ -112,16 +67,13 @@ export default class MyPlugin extends Plugin {
 		const statusBarItemEl = this.addStatusBarItem();
 		statusBarItemEl.setText("Status Bar Text");
 
-		const { vault, metadataCache } = this.app;
-
 		this.registerView(
 			"zigzag-view",
 			(leaf) =>
 				(this.zigzagView = new ZigzagView(
 					leaf,
 					"bracket-glyph",
-					vault,
-					metadataCache,
+					this.app,
 				)),
 		);
 
@@ -131,6 +83,12 @@ export default class MyPlugin extends Plugin {
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				console.log(editor.getSelection());
 			},
+		});
+
+		this.addCommand({
+			id: "display-modal",
+			name: "Display modal",
+			callback: () => openAddIssueModal(this.app),
 		});
 
 		const testPatch = {

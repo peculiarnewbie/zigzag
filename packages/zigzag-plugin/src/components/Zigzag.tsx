@@ -1,13 +1,6 @@
 import { For, createContext, createEffect, createSignal } from "solid-js";
 import { css, type TokenamiStyle } from "@tokenami/css";
-import {
-	MetadataCache,
-	TFile,
-	Vault,
-	getAllTags,
-	moment,
-	setIcon,
-} from "obsidian";
+import { App, MetadataCache, TFile, Vault, getAllTags } from "obsidian";
 import {
 	Issue,
 	PriorityKeys,
@@ -16,23 +9,18 @@ import {
 	StatusType,
 } from "src/types";
 import IssueListItem from "./IssueListItem";
+import IssueListCategory from "./IssueListCategory";
+import { openAddIssueModal } from "src/main";
 
-export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
+export default function Zigzag(props: { app: App }) {
 	const VaultContext = createContext();
 	let checkbox: HTMLInputElement | undefined;
 	const [issues, setIssues] = createSignal<Issue[]>();
 
-	const toggleCheck = () => {
-		if (checkbox === undefined) return;
-		const checked = checkbox.dataset.checked;
-		if (checked === "false") checkbox.dataset.checked = "true";
-		else checkbox.dataset.checked = "false";
-	};
-
 	const pullIssues = async () => {
 		const issuesFiles = await Promise.all(
-			props.vault.getMarkdownFiles().filter((md) => {
-				const fileCache = props.cache.getFileCache(md);
+			props.app.vault.getMarkdownFiles().filter((md) => {
+				const fileCache = props.app.metadataCache.getFileCache(md);
 				if (fileCache) {
 					const tag = getAllTags(fileCache)?.filter(
 						(tag) => tag === "#Zigzag/Issue",
@@ -45,24 +33,41 @@ export default function Zigzag(props: { vault: Vault; cache: MetadataCache }) {
 
 		const issuesFromVault = await Promise.all(
 			issuesFiles.map((file) =>
-				parseIssue(file, props.vault, props.cache),
+				parseIssue(file, props.app.vault, props.app.metadataCache),
 			),
 		);
 
 		setIssues(issuesFromVault);
 	};
 
-	createEffect(() => pullIssues());
+	const openAddIssue = () => {
+		openAddIssueModal(props.app);
+	};
+
+	createEffect(() => {
+		props.app.vault.on("rename", pullIssues);
+		props.app.metadataCache.on("changed", pullIssues);
+
+		pullIssues();
+	});
 
 	return (
-		<VaultContext.Provider value={props.vault}>
-			<div>
+		<VaultContext.Provider value={props.app.vault}>
+			<div
+				style={{
+					margin: "-16px",
+					...css({
+						"--font-size": "var(--font-size_small)",
+					}),
+				}}
+			>
+				<IssueListCategory
+					itemsCount={issues()?.length ?? 0}
+					openAddIssueModal={openAddIssue}
+				/>
 				<For each={issues()}>
 					{(issue) => <IssueListItem issue={issue} />}
 				</For>
-				<button style={{ "margin-top": "8px" }} onclick={pullIssues}>
-					refresh
-				</button>
 			</div>
 		</VaultContext.Provider>
 	);
