@@ -81,9 +81,25 @@ export default function AddIssue() {
 					oninput={checkEmpty}
 				/>
 			</div>
-			<div style={css({ "--pt": 1.5, "--pb": 3, "--display": "flex" })}>
-				<div>status</div>
-				<div>priority</div>
+			<div
+				style={css({
+					"--pt": 1.5,
+					"--pb": 3,
+					"--display": "flex",
+					"--gap": 2,
+				})}
+			>
+				<select class="dropdown">
+					<option>Backlog</option>
+					<option>Todo</option>
+				</select>
+				<select class="dropdown">
+					<option>No Priority</option>
+					<option>Low</option>
+					<option>Medium</option>
+					<option>High</option>
+					<option>Urgent</option>
+				</select>
 			</div>
 			<div
 				style={{
@@ -100,8 +116,22 @@ export default function AddIssue() {
 					"--pt": 3,
 					"--display": "flex",
 					"--set-x": "end",
+					"--gap": 2,
 				})}
 			>
+				<div
+					style={css({
+						"--display": "flex",
+						"--set-y": "center",
+						"--gap": 0.5,
+						"--font-size": "var(--font-size_small)",
+					})}
+				>
+					<div class="checkbox-container">
+						<input type="checkbox" />
+					</div>
+					<div>create more</div>
+				</div>
 				<button class="mod-cta">Create Issue</button>
 			</div>
 		</div>
