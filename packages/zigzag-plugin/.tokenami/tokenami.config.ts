@@ -9,11 +9,11 @@ export default createConfig({
 		anim: {},
 		border: { standard: "1px solid var(--background-modifier-border)" },
 		color: {
-			"blue-400": "#2323ff",
 			"interactive-accent": "var(--interactive-accent)",
-			bg: "--background-primary",
+			"bg-primary": "--background-primary",
 			"icon-color": "var(--icon-color)",
 			"text-muted": "var(--text-muted)",
+			"text-faint": "var(--text-faint)",
 			"bg-primary-alt": "var(--background-primary-alt)",
 		},
 		ease: {},
@@ -48,4 +48,5 @@ export default createConfig({
 		"set-y": ["align-items"],
 		"set-x": ["justify-content"],
 	},
+	rootReplacement: ".theme-dark, .theme-light",
 });
