@@ -1,5 +1,5 @@
-import { moment, setIcon } from "obsidian";
-import { Show, createEffect, createSignal } from "solid-js";
+import { moment, setIcon, setTooltip } from "obsidian";
+import { Setter, Show, createEffect, createSignal } from "solid-js";
 import { css } from "src/css";
 import {
 	Issue,
@@ -108,35 +108,34 @@ export function StatusIcon(props: {
 	let el!: HTMLDivElement;
 
 	createEffect(() => {
-		if (el) {
-			switch (props.status) {
-				case StatusKeys.Backlog:
-					setIcon(el, "circle-dashed");
-					break;
-				case StatusKeys.Todo:
-					setIcon(el, "circle");
-					break;
+		switch (props.status) {
+			case StatusKeys.Backlog:
+				setIcon(el, "circle-dashed");
+				break;
+			case StatusKeys.Todo:
+				setIcon(el, "circle");
+				break;
 
-				case StatusKeys.InReview:
-					setIcon(el, "circle-ellipsis");
-					el.style.setProperty("--icon-color", "var(--text-success)");
-					break;
-				case StatusKeys.InProgress:
-					setIcon(el, "circle-dot");
-					el.style.setProperty("--icon-color", "var(--text-warning)");
-					break;
-				case StatusKeys.Cancelled:
-					setIcon(el, "x-circle");
-					break;
-				case StatusKeys.Done:
-					setIcon(el, "check-circle");
-					el.style.setProperty(
-						"--icon-color",
-						"var(--interactive-accent)",
-					);
-					break;
-			}
+			case StatusKeys.InReview:
+				setIcon(el, "circle-ellipsis");
+				el.style.setProperty("--icon-color", "var(--text-success)");
+				break;
+			case StatusKeys.InProgress:
+				setIcon(el, "circle-dot");
+				el.style.setProperty("--icon-color", "var(--text-warning)");
+				break;
+			case StatusKeys.Cancelled:
+				setIcon(el, "x-circle");
+				break;
+			case StatusKeys.Done:
+				setIcon(el, "check-circle");
+				el.style.setProperty(
+					"--icon-color",
+					"var(--interactive-accent)"
+				);
+				break;
 		}
+		if (props.interactive) setTooltip(el, "Change status");
 	});
 
 	return (
@@ -152,26 +151,25 @@ function PriorityIcon(props: { priority: PriorityType }) {
 	let el!: HTMLDivElement;
 
 	createEffect(() => {
-		if (el) {
-			switch (props.priority) {
-				case PriorityKeys.NoPriority:
-					setIcon(el, "minus");
-					break;
-				case PriorityKeys.Low:
-					setIcon(el, "signal-low");
-					break;
-				case PriorityKeys.Medium:
-					setIcon(el, "signal-high");
-					break;
-				case PriorityKeys.High:
-					setIcon(el, "signal");
-					break;
-				case PriorityKeys.Urgent:
-					setIcon(el, "alert-octagon");
-					el.style.setProperty("--icon-color", "var(--text-error)");
-					break;
-			}
+		switch (props.priority) {
+			case PriorityKeys.NoPriority:
+				setIcon(el, "minus");
+				break;
+			case PriorityKeys.Low:
+				setIcon(el, "signal-low");
+				break;
+			case PriorityKeys.Medium:
+				setIcon(el, "signal-high");
+				break;
+			case PriorityKeys.High:
+				setIcon(el, "signal");
+				break;
+			case PriorityKeys.Urgent:
+				setIcon(el, "alert-octagon");
+				el.style.setProperty("--icon-color", "var(--text-error)");
+				break;
 		}
+		setTooltip(el, "Change priority");
 	});
 
 	return <div class="metadata-property-icon" style={Icon()} ref={el}></div>;

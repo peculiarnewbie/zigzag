@@ -1,9 +1,14 @@
 import { css } from "src/css";
-import { createEffect } from "solid-js";
+import { createEffect, createSignal } from "solid-js";
+import { Menu, Notice } from "obsidian";
+import { PriorityKeys, StatusKeys, StatusType } from "src/types";
+import { changeStatus } from "../ContextMenus/StatusMenu";
 
 export default function AddIssue() {
 	let parent!: HTMLDivElement;
 	let initialHeight = 0;
+
+	const [status, setStatus] = createSignal<StatusType>(StatusKeys.Backlog);
 
 	const checkEmpty = (e: InputEvent) => {
 		const el = e.target as HTMLDivElement;
@@ -19,6 +24,10 @@ export default function AddIssue() {
 				`${parent.clientHeight / 2 - initialHeight / 2}px`
 			);
 		}
+	};
+
+	const handler = (status: StatusType) => {
+		setStatus(status);
 	};
 
 	createEffect(() => {
@@ -49,14 +58,15 @@ export default function AddIssue() {
 					code
 				</div>
 				<div>{">"}</div>
-				<div>New Issue</div>
+				<div>New Issue {status()}</div>
 			</div>
-			<div style={css({ "--h": 1.5 })} />
+			<div style={css({ "--h": 2 })} />
 			<div
 				style={css({
 					"--font-weight": "var(--weight_bold)",
 					"--font-size": "var(--font-size_large)",
 					"--cursor": "text",
+					"--pl": 2,
 				})}
 				class=" editor-placeholder"
 				contentEditable={true}
@@ -71,6 +81,7 @@ export default function AddIssue() {
 					"--max-height": 100,
 					"--overflow-y": "auto",
 					"--pb": 3,
+					"--px": 2,
 				})}
 			>
 				<div
@@ -89,10 +100,9 @@ export default function AddIssue() {
 					"--gap": 2,
 				})}
 			>
-				<select class="dropdown">
-					<option>Backlog</option>
-					<option>Todo</option>
-				</select>
+				<button onclick={(e) => changeStatus(e, handler)}>
+					Backlog
+				</button>
 				<select class="dropdown">
 					<option>No Priority</option>
 					<option>Low</option>

@@ -2,7 +2,7 @@ import { css } from "@tokenami/css";
 import { StatusIcon } from "./IssueListItem";
 import { StatusKeys } from "src/types";
 import { createEffect } from "solid-js";
-import { setIcon } from "obsidian";
+import { setIcon, setTooltip } from "obsidian";
 
 export default function IssueListCategory(props: {
 	itemsCount: number;
@@ -10,7 +10,10 @@ export default function IssueListCategory(props: {
 }) {
 	let plusButton!: HTMLDivElement;
 
-	createEffect(() => setIcon(plusButton, "plus"));
+	createEffect(() => {
+		setIcon(plusButton, "plus");
+		setTooltip(plusButton, "Add issue");
+	});
 
 	return (
 		<div
