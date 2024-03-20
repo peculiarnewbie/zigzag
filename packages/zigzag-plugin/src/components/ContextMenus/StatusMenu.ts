@@ -7,15 +7,13 @@ export const changeStatus = (
 ) => {
 	const menu = new Menu();
 
-	menu.addItem((item) => {
-		item.setTitle("Backlog").onClick(() => handler(StatusKeys.Backlog));
+	Object.values(StatusKeys).forEach((status) => {
+		menu.addItem((item) => {
+			item.setTitle(status.value)
+				.setIcon(status.icon)
+				.onClick(() => handler(status));
+		});
 	});
-
-	menu.addItem((item) => {
-		item.setTitle("Todo").onClick(() => handler(StatusKeys.Todo));
-	});
-
-	menu.addChild;
 
 	if (e instanceof MouseEvent) menu.showAtMouseEvent(e);
 	else menu.showAtPosition(e);

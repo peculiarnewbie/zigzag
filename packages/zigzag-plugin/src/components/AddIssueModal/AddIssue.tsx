@@ -58,7 +58,7 @@ export default function AddIssue() {
 					code
 				</div>
 				<div>{">"}</div>
-				<div>New Issue {status()}</div>
+				<div>New Issue {status().value}</div>
 			</div>
 			<div style={css({ "--h": 2 })} />
 			<div

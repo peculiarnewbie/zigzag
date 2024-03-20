@@ -11,6 +11,8 @@ import {
 import IssueListItem from "./IssueListItem";
 import IssueListCategory from "./IssueListCategory";
 import { openAddIssueModal } from "src/main";
+import { getStatus } from "./Icons/StatusIcon";
+import { getPriority } from "./Icons/PriorityIcon";
 
 export default function Zigzag(props: { app: App }) {
 	const VaultContext = createContext();
@@ -23,18 +25,18 @@ export default function Zigzag(props: { app: App }) {
 				const fileCache = props.app.metadataCache.getFileCache(md);
 				if (fileCache) {
 					const tag = getAllTags(fileCache)?.filter(
-						(tag) => tag === "#Zigzag/Issue",
+						(tag) => tag === "#Zigzag/Issue"
 					);
 					if (tag && tag.length > 0) return true;
 				}
 				return false;
-			}),
+			})
 		);
 
 		const issuesFromVault = await Promise.all(
 			issuesFiles.map((file) =>
-				parseIssue(file, props.app.vault, props.app.metadataCache),
-			),
+				parseIssue(file, props.app.vault, props.app.metadataCache)
+			)
 		);
 
 		setIssues(issuesFromVault);
@@ -77,20 +79,20 @@ const parseIssue = async (file: TFile, vault: Vault, cache: MetadataCache) => {
 	const fileCache = cache.getFileCache(file);
 	const content = await vault.read(file);
 
-	let status = StatusKeys.Backlog;
-	let priority = PriorityKeys.NoPriority;
+	let status: StatusType;
+	let priority: PriorityType;
 	let created = "";
 	let description = "description";
 
-	if (fileCache?.frontmatter) {
-		status = fileCache.frontmatter.status ?? status;
-		priority = fileCache.frontmatter.priority ?? priority;
-		created = fileCache.frontmatter.created ?? created;
-	}
+	if (!fileCache?.frontmatter) return {} as Issue;
+
+	status = getStatus(fileCache.frontmatter.status);
+	priority = getPriority(fileCache.frontmatter.priority);
+	created = fileCache.frontmatter.created ?? created;
 
 	if (fileCache?.sections && fileCache.headings) {
 		const descriptionHeadingIndex = fileCache.headings.findIndex(
-			(heading) => heading.heading == "Description",
+			(heading) => heading.heading == "Description"
 		);
 		if (descriptionHeadingIndex !== undefined) {
 			let headingIter = -1;
@@ -110,7 +112,7 @@ const parseIssue = async (file: TFile, vault: Vault, cache: MetadataCache) => {
 
 			description = content.slice(
 				descriptionSection.start.offset,
-				descriptionSection.end.offset,
+				descriptionSection.end.offset
 			);
 		}
 	}
