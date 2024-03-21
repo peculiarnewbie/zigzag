@@ -1,14 +1,27 @@
 import { css } from "src/css";
 import { createEffect, createSignal } from "solid-js";
-import { Menu, Notice } from "obsidian";
-import { PriorityKeys, StatusKeys, StatusType } from "src/types";
-import { changeStatus } from "../ContextMenus/StatusMenu";
+import { Menu, Modal, Notice, Vault, moment } from "obsidian";
+import {
+	Issue,
+	PriorityKeys,
+	PriorityType,
+	StatusKeys,
+	StatusType,
+} from "src/types";
+import { changePriority, changeStatus } from "../ContextMenus/ContextMenu";
+import { StatusIcon } from "../Icons/StatusIcon";
+import { PriorityIcon } from "../Icons/PriorityIcon";
 
-export default function AddIssue() {
+export default function AddIssue(props: { vault: Vault; modal: Modal }) {
 	let parent!: HTMLDivElement;
 	let initialHeight = 0;
 
 	const [status, setStatus] = createSignal<StatusType>(StatusKeys.Backlog);
+	const [priority, setPriority] = createSignal<PriorityType>(
+		PriorityKeys.NoPriority
+	);
+	const [title, setTitle] = createSignal("");
+	const [description, setDescription] = createSignal("");
 
 	const checkEmpty = (e: InputEvent) => {
 		const el = e.target as HTMLDivElement;
@@ -26,8 +39,25 @@ export default function AddIssue() {
 		}
 	};
 
-	const handler = (status: StatusType) => {
-		setStatus(status);
+	const createIssue = () => {
+		if (!title()) {
+			new Notice("Title required");
+			return;
+		}
+
+		const data = `---
+tags:
+- Zigzag/Issue
+status: ${status().value}
+priority: ${priority().value}
+created: ${moment().format("YYYY-MM-DD")}
+---
+# Description
+${description()}
+`;
+
+		props.vault.create(`${title()}.md`, data);
+		props.modal.close();
 	};
 
 	createEffect(() => {
@@ -52,13 +82,14 @@ export default function AddIssue() {
 				<div
 					style={css({
 						"--border": "var(--border_standard)",
+						"--border-radius": "var(--radii_sm)",
 						"--p": 1,
 					})}
 				>
 					code
 				</div>
 				<div>{">"}</div>
-				<div>New Issue {status()}</div>
+				<div>New Issue</div>
 			</div>
 			<div style={css({ "--h": 2 })} />
 			<div
@@ -71,7 +102,10 @@ export default function AddIssue() {
 				class=" editor-placeholder"
 				contentEditable={true}
 				data-empty-text="Issue Title"
-				oninput={checkEmpty}
+				oninput={(e) => {
+					checkEmpty(e);
+					setTitle((e.target as HTMLDivElement).innerText);
+				}}
 			/>
 			<div style={css({ "--h": 2.5 })} />
 			<div
@@ -89,7 +123,10 @@ export default function AddIssue() {
 					class="editor-placeholder"
 					contentEditable={true}
 					data-empty-text="Add description..."
-					oninput={checkEmpty}
+					oninput={(e) => {
+						checkEmpty(e);
+						setDescription((e.target as HTMLDivElement).innerText);
+					}}
 				/>
 			</div>
 			<div
@@ -100,16 +137,30 @@ export default function AddIssue() {
 					"--gap": 2,
 				})}
 			>
-				<button onclick={(e) => changeStatus(e, handler)}>
-					Backlog
+				<button
+					onclick={(e) => changeStatus(e, setStatus)}
+					style={{
+						...css({ "--display": "flex", "--gap": 1 }),
+						height: "26px",
+						"padding-left": "8px",
+						"padding-right": "8px",
+					}}
+				>
+					<StatusIcon status={status()} />
+					<div>{status().value}</div>
 				</button>
-				<select class="dropdown">
-					<option>No Priority</option>
-					<option>Low</option>
-					<option>Medium</option>
-					<option>High</option>
-					<option>Urgent</option>
-				</select>
+				<button
+					onclick={(e) => changePriority(e, setPriority)}
+					style={{
+						...css({ "--display": "flex", "--gap": 1 }),
+						height: "26px",
+						"padding-left": "8px",
+						"padding-right": "8px",
+					}}
+				>
+					<PriorityIcon priority={priority()} />
+					<div>{priority().value}</div>
+				</button>
 			</div>
 			<div
 				style={{
@@ -129,7 +180,7 @@ export default function AddIssue() {
 					"--gap": 2,
 				})}
 			>
-				<div
+				{/* <div
 					style={css({
 						"--display": "flex",
 						"--set-y": "center",
@@ -141,8 +192,10 @@ export default function AddIssue() {
 						<input type="checkbox" />
 					</div>
 					<div>create more</div>
-				</div>
-				<button class="mod-cta">Create Issue</button>
+				</div> */}
+				<button class="mod-cta" onclick={createIssue}>
+					Create Issue
+				</button>
 			</div>
 		</div>
 	);

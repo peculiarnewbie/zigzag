@@ -11,7 +11,10 @@ export class AddIssueModal extends Modal {
 	onOpen() {
 		let { contentEl } = this;
 
-		render(() => AddIssue(), contentEl);
+		render(
+			() => AddIssue({ vault: this.app.vault, modal: this }),
+			contentEl
+		);
 	}
 
 	onClose() {

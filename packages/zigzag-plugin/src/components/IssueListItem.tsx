@@ -8,16 +8,14 @@ import {
 	StatusKeys,
 	StatusType,
 } from "src/types";
+import { StatusIcon } from "./Icons/StatusIcon";
+import { PriorityIcon } from "./Icons/PriorityIcon";
+import { changePriority, changeStatus } from "./ContextMenus/ContextMenu";
 
-const Icon = css.compose({
-	"--display": "flex",
-	"--set-y": "center",
-	//@ts-expect-error
-	"--color": "var(--icon-color)",
-	"--icon-size": "var(--icon-s)",
-});
-
-export default function IssueListItem(props: { issue: Issue }) {
+export default function IssueListItem(props: {
+	issue: Issue;
+	editIssue: (issue: Issue) => void;
+}) {
 	const [hovered, setHovered] = createSignal(false);
 	const [selected, setSelected] = createSignal(false);
 
@@ -26,7 +24,6 @@ export default function IssueListItem(props: { issue: Issue }) {
 	const toggleCheck = () => {
 		if (checkbox === undefined) return;
 		const checked = checkbox.dataset.checked;
-		console.log(checkbox.dataset.checked);
 		if (checked === "false" || checked == undefined) {
 			setSelected(true);
 			checkbox.dataset.checked = "true";
@@ -34,6 +31,25 @@ export default function IssueListItem(props: { issue: Issue }) {
 			setSelected(false);
 			checkbox.dataset.checked = "false";
 		}
+	};
+
+	const handleChangeStatus = (e: MouseEvent) => {
+		changeStatus(e, (status) => changeIssue({ status: status }));
+	};
+
+	const handleChangePriority = (e: MouseEvent) => {
+		changePriority(e, (priority) => changeIssue({ priority: priority }));
+	};
+
+	const changeIssue = (change: {
+		status?: StatusType;
+		priority?: PriorityType;
+	}) => {
+		console.log(change);
+		const newIssue = { ...props.issue };
+		if (change.status) newIssue.status = change.status;
+		if (change.priority) newIssue.priority = change.priority;
+		props.editIssue(newIssue);
 	};
 
 	return (
@@ -71,13 +87,19 @@ export default function IssueListItem(props: { issue: Issue }) {
 						/>
 					</Show>
 				</div>
-				<PriorityIcon priority={props.issue.priority} />
+				<PriorityIcon
+					priority={props.issue.priority}
+					changePriority={handleChangePriority}
+				/>
 				<div style={{ width: "8px" }} />
 				<div style={css({ "--color": "var(--color_text-muted)" })}>
 					code
 				</div>
 				<div style={{ width: "8px" }} />
-				<StatusIcon status={props.issue.status} interactive />
+				<StatusIcon
+					status={props.issue.status}
+					changeStatus={handleChangeStatus}
+				/>
 				<div style={{ width: "8px" }} />
 				<div
 					style={css({
@@ -99,78 +121,4 @@ export default function IssueListItem(props: { issue: Issue }) {
 			</div>
 		</div>
 	);
-}
-
-export function StatusIcon(props: {
-	status: StatusType;
-	interactive?: boolean;
-}) {
-	let el!: HTMLDivElement;
-
-	createEffect(() => {
-		switch (props.status) {
-			case StatusKeys.Backlog:
-				setIcon(el, "circle-dashed");
-				break;
-			case StatusKeys.Todo:
-				setIcon(el, "circle");
-				break;
-
-			case StatusKeys.InReview:
-				setIcon(el, "circle-ellipsis");
-				el.style.setProperty("--icon-color", "var(--text-success)");
-				break;
-			case StatusKeys.InProgress:
-				setIcon(el, "circle-dot");
-				el.style.setProperty("--icon-color", "var(--text-warning)");
-				break;
-			case StatusKeys.Cancelled:
-				setIcon(el, "x-circle");
-				break;
-			case StatusKeys.Done:
-				setIcon(el, "check-circle");
-				el.style.setProperty(
-					"--icon-color",
-					"var(--interactive-accent)"
-				);
-				break;
-		}
-		if (props.interactive) setTooltip(el, "Change status");
-	});
-
-	return (
-		<div
-			class={`${props.interactive ? "metadata-property-icon" : ""} `}
-			style={Icon()}
-			ref={el}
-		></div>
-	);
-}
-
-function PriorityIcon(props: { priority: PriorityType }) {
-	let el!: HTMLDivElement;
-
-	createEffect(() => {
-		switch (props.priority) {
-			case PriorityKeys.NoPriority:
-				setIcon(el, "minus");
-				break;
-			case PriorityKeys.Low:
-				setIcon(el, "signal-low");
-				break;
-			case PriorityKeys.Medium:
-				setIcon(el, "signal-high");
-				break;
-			case PriorityKeys.High:
-				setIcon(el, "signal");
-				break;
-			case PriorityKeys.Urgent:
-				setIcon(el, "alert-octagon");
-				el.style.setProperty("--icon-color", "var(--text-error)");
-				break;
-		}
-		setTooltip(el, "Change priority");
-	});
-
-	return <div class="metadata-property-icon" style={Icon()} ref={el}></div>;
 }

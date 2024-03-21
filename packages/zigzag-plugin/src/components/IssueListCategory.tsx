@@ -1,8 +1,8 @@
 import { css } from "@tokenami/css";
-import { StatusIcon } from "./IssueListItem";
 import { StatusKeys } from "src/types";
 import { createEffect } from "solid-js";
 import { setIcon, setTooltip } from "obsidian";
+import { StatusIcon } from "./Icons/StatusIcon";
 
 export default function IssueListCategory(props: {
 	itemsCount: number;

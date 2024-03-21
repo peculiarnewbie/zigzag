@@ -24,7 +24,7 @@ export default createConfig({
 		},
 		leading: {},
 		"line-style": {},
-		radii: {},
+		radii: { full: "1000px", sm: "4px" },
 		size: {},
 		shadow: {},
 		surface: {},
