@@ -1,3 +1,5 @@
+import { TFile } from "obsidian";
+
 export type Message = {
 	from: string;
 	content: string;
@@ -45,9 +47,9 @@ export type PriorityIconsType =
 	(typeof PriorityKeys)[keyof typeof PriorityKeys]["icon"];
 
 export type Issue = {
-	path: string;
+	file: TFile;
 	title: string;
-	description: string;
+	description?: string;
 	status: StatusType;
 	priority: PriorityType;
 	created: string;

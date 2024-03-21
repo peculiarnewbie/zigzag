@@ -29,10 +29,6 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 	workerurl: "default",
 };
 
-export const openAddIssueModal = (app: App) => {
-	new AddIssueModal(app).open();
-};
-
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
 	private zigzagView: ZigzagView;
@@ -83,12 +79,6 @@ export default class MyPlugin extends Plugin {
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				console.log(editor.getSelection());
 			},
-		});
-
-		this.addCommand({
-			id: "display-modal",
-			name: "Display modal",
-			callback: () => openAddIssueModal(this.app),
 		});
 
 		const testPatch = {

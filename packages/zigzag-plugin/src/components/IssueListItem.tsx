@@ -1,4 +1,4 @@
-import { moment, setIcon, setTooltip } from "obsidian";
+import { App, Menu, Vault, moment, setIcon, setTooltip } from "obsidian";
 import { Setter, Show, createEffect, createSignal } from "solid-js";
 import { css } from "src/css";
 import {
@@ -11,59 +11,112 @@ import {
 import { StatusIcon } from "./Icons/StatusIcon";
 import { PriorityIcon } from "./Icons/PriorityIcon";
 import { changePriority, changeStatus } from "./ContextMenus/ContextMenu";
+import { DeleteModal, parseIssue } from "./Zigzag";
+
+const ItemStyle = css.compose({
+	"--display": "flex",
+	"--set-x": "space-between",
+	"--border-bottom": "var(--border_standard)",
+	"--py": 1,
+	"--pl": 1,
+	"--pr": 5.25,
+	"--hover_bg": "var(--color_bg-hover)",
+
+	variants: {
+		selected: {
+			false: { "--hover_bg": "var(--color_bg-hover)" },
+			true: {
+				"--bg": "var(--color_interactive-normal)",
+				"--hover_bg": "var(--color_interactive-hover)",
+			},
+		},
+	},
+});
 
 export default function IssueListItem(props: {
-	issue: Issue;
+	issue: Issue & { selected: boolean };
 	editIssue: (issue: Issue) => void;
+	toggleSelect: (checkbox: HTMLInputElement, path: string) => void;
+	deleteAction: (issue: Issue & { selected: boolean }) => void;
+	app: App;
 }) {
 	const [hovered, setHovered] = createSignal(false);
-	const [selected, setSelected] = createSignal(false);
 
 	let checkbox!: HTMLInputElement;
 
-	const toggleCheck = () => {
-		if (checkbox === undefined) return;
-		const checked = checkbox.dataset.checked;
-		if (checked === "false" || checked == undefined) {
-			setSelected(true);
-			checkbox.dataset.checked = "true";
-		} else {
-			setSelected(false);
-			checkbox.dataset.checked = "false";
-		}
-	};
-
 	const handleChangeStatus = (e: MouseEvent) => {
+		e.stopPropagation();
 		changeStatus(e, (status) => changeIssue({ status: status }));
 	};
 
 	const handleChangePriority = (e: MouseEvent) => {
+		e.stopPropagation();
 		changePriority(e, (priority) => changeIssue({ priority: priority }));
 	};
 
-	const changeIssue = (change: {
+	const changeIssue = async (change: {
 		status?: StatusType;
 		priority?: PriorityType;
 	}) => {
 		console.log(change);
-		const newIssue = { ...props.issue };
-		if (change.status) newIssue.status = change.status;
-		if (change.priority) newIssue.priority = change.priority;
-		props.editIssue(newIssue);
+		const newStatus = change.status?.value;
+		const newPriority = change.priority?.value;
+		console.log(props.issue.file, props.issue.status.value, newStatus);
+		if (newStatus)
+			await props.app.vault.process(props.issue.file, (data) =>
+				data.replace(
+					`status: ${props.issue.status.value}`,
+					`status: ${newStatus}`
+				)
+			);
+		if (newPriority)
+			await props.app.vault.process(props.issue.file, (data) =>
+				data.replace(
+					`priority: ${props.issue.priority.value}`,
+					`priority: ${newPriority}`
+				)
+			);
+
+		return parseIssue(
+			props.issue.file,
+			props.app.vault,
+			props.app.metadataCache
+		);
+	};
+
+	const openFile = () => {
+		props.app.workspace.getLeaf().openFile(props.issue.file);
+	};
+
+	const openContext = (e: MouseEvent) => {
+		const menu = new Menu();
+
+		menu.addItem((item) => {
+			item.setTitle("Delete")
+				.setSection("danger")
+				.setIcon("trash-2")
+				.onClick(() => props.deleteAction(props.issue));
+		});
+
+		menu.showAtMouseEvent(e);
+	};
+
+	const handleToggleSelect = (e: MouseEvent) => {
+		e.stopPropagation();
+		props.toggleSelect(checkbox, props.issue.file.path);
 	};
 
 	return (
 		<div
-			style={css({
-				"--display": "flex",
-				"--set-x": "space-between",
-				"--border-bottom": "var(--border_standard)",
-				"--py": 1,
-				"--pl": 1,
-				"--pr": 5.25,
-			})}
+			style={
+				props.issue.selected
+					? ItemStyle({ selected: true })
+					: ItemStyle({ selected: false })
+			}
 			onpointerenter={() => setHovered(true)}
 			onpointerleave={() => setHovered(false)}
+			onclick={openFile}
+			oncontextmenu={openContext}
 		>
 			<div
 				style={css({
@@ -79,11 +132,11 @@ export default function IssueListItem(props: {
 						"--set-y": "center",
 					})}
 				>
-					<Show when={hovered() || selected()}>
+					<Show when={hovered() || props.issue.selected}>
 						<input
 							ref={checkbox}
 							type="checkbox"
-							onclick={toggleCheck}
+							onclick={handleToggleSelect}
 						/>
 					</Show>
 				</div>
