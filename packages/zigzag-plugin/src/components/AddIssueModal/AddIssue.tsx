@@ -1,6 +1,6 @@
 import { css } from "src/css";
 import { createEffect, createSignal } from "solid-js";
-import { Menu, Notice } from "obsidian";
+import { Menu, Modal, Notice, Vault, moment } from "obsidian";
 import {
 	Issue,
 	PriorityKeys,
@@ -12,7 +12,7 @@ import { changePriority, changeStatus } from "../ContextMenus/ContextMenu";
 import { StatusIcon } from "../Icons/StatusIcon";
 import { PriorityIcon } from "../Icons/PriorityIcon";
 
-export default function AddIssue() {
+export default function AddIssue(props: { vault: Vault; modal: Modal }) {
 	let parent!: HTMLDivElement;
 	let initialHeight = 0;
 
@@ -48,7 +48,20 @@ export default function AddIssue() {
 			priority: priority(),
 			created: "2024-02-01",
 		};
-		console.log(issue);
+
+		const data = `---
+tags:
+- Zigzag/Issue
+status: ${status().value}
+priority: ${priority().value}
+created: ${moment().format("YYYY-MM-DD")}
+---
+# Description
+${description()}
+`;
+
+		props.vault.create(`${title()}.md`, data);
+		props.modal.close();
 	};
 
 	createEffect(() => {
