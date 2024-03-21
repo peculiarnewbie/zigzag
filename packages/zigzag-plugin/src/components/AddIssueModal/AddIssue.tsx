@@ -40,14 +40,10 @@ export default function AddIssue(props: { vault: Vault; modal: Modal }) {
 	};
 
 	const createIssue = () => {
-		const issue: Issue = {
-			path: title(),
-			title: title(),
-			description: description(),
-			status: status(),
-			priority: priority(),
-			created: "2024-02-01",
-		};
+		if (!title()) {
+			new Notice("Title required");
+			return;
+		}
 
 		const data = `---
 tags:
@@ -184,7 +180,7 @@ ${description()}
 					"--gap": 2,
 				})}
 			>
-				<div
+				{/* <div
 					style={css({
 						"--display": "flex",
 						"--set-y": "center",
@@ -196,7 +192,7 @@ ${description()}
 						<input type="checkbox" />
 					</div>
 					<div>create more</div>
-				</div>
+				</div> */}
 				<button class="mod-cta" onclick={createIssue}>
 					Create Issue
 				</button>
