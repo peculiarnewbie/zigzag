@@ -18,5 +18,5 @@ export const setupIcon = (
 	setIcon(el, icon);
 	if (color) el.style.setProperty("--icon-color", `var(--${color})`);
 	else el.style.removeProperty("--icon-color");
-	if (tooltip) setTooltip(el, "Change status");
+	if (tooltip) setTooltip(el, tooltip);
 };

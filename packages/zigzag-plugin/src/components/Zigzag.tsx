@@ -10,9 +10,11 @@ import { createStore, produce } from "solid-js/store";
 import { AddIssueModal } from "./AddIssueModal/AddIssueModal";
 import { render } from "solid-js/web";
 
+type IssueUIType = Issue & { selected: boolean };
+
 export default function Zigzag(props: { app: App }) {
 	const VaultContext = createContext();
-	const [store, setStore] = createStore({ issues: [] as Issue[] });
+	const [store, setStore] = createStore({ issues: [] as IssueUIType[] });
 
 	const pullIssues = async () => {
 		const issuesFiles = await Promise.all(
@@ -48,6 +50,25 @@ export default function Zigzag(props: { app: App }) {
 		);
 	};
 
+	const setSelected = (bool: boolean, path: string) => {
+		setStore(
+			"issues",
+			(issues) => issues.file.path === path,
+			produce((prev) => (prev.selected = bool))
+		);
+	};
+
+	const toggleSelect = (checkbox: HTMLInputElement, path: string) => {
+		const checked = checkbox.dataset.checked;
+		if (checked === "false" || checked == undefined) {
+			setSelected(true, path);
+			checkbox.dataset.checked = "true";
+		} else {
+			setSelected(false, path);
+			checkbox.dataset.checked = "false";
+		}
+	};
+
 	const openAddIssue = () => {
 		new AddIssueModal(props.app).open();
 	};
@@ -79,6 +100,7 @@ export default function Zigzag(props: { app: App }) {
 							issue={issue}
 							editIssue={editIssue}
 							app={props.app}
+							toggleSelect={toggleSelect}
 						/>
 					)}
 				</For>
@@ -100,7 +122,7 @@ export const parseIssue = async (
 	let created = "";
 	let description = "description";
 
-	if (!fileCache?.frontmatter) return {} as Issue;
+	if (!fileCache?.frontmatter) return {} as IssueUIType;
 
 	status = getStatus(fileCache.frontmatter.status);
 	priority = getPriority(fileCache.frontmatter.priority);
@@ -142,7 +164,7 @@ export const parseIssue = async (
 		created: created,
 	};
 
-	return issue;
+	return { ...issue, selected: false } as IssueUIType;
 };
 
 function DeleteView(props: { cancel: () => void; action: () => void }) {

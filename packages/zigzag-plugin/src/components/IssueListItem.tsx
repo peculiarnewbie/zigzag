@@ -34,27 +34,14 @@ const ItemStyle = css.compose({
 });
 
 export default function IssueListItem(props: {
-	issue: Issue;
+	issue: Issue & { selected: boolean };
 	editIssue: (issue: Issue) => void;
+	toggleSelect: (checkbox: HTMLInputElement, path: string) => void;
 	app: App;
 }) {
 	const [hovered, setHovered] = createSignal(false);
-	const [selected, setSelected] = createSignal(false);
 
 	let checkbox!: HTMLInputElement;
-
-	const toggleCheck = (e: MouseEvent) => {
-		e.stopPropagation();
-		if (checkbox === undefined) return;
-		const checked = checkbox.dataset.checked;
-		if (checked === "false" || checked == undefined) {
-			setSelected(true);
-			checkbox.dataset.checked = "true";
-		} else {
-			setSelected(false);
-			checkbox.dataset.checked = "false";
-		}
-	};
 
 	const handleChangeStatus = (e: MouseEvent) => {
 		e.stopPropagation();
@@ -117,10 +104,15 @@ export default function IssueListItem(props: {
 		menu.showAtMouseEvent(e);
 	};
 
+	const handleToggleSelect = (e: MouseEvent) => {
+		e.stopPropagation();
+		props.toggleSelect(checkbox, props.issue.file.path);
+	};
+
 	return (
 		<div
 			style={
-				selected()
+				props.issue.selected
 					? ItemStyle({ selected: true })
 					: ItemStyle({ selected: false })
 			}
@@ -143,11 +135,11 @@ export default function IssueListItem(props: {
 						"--set-y": "center",
 					})}
 				>
-					<Show when={hovered() || selected()}>
+					<Show when={hovered() || props.issue.selected}>
 						<input
 							ref={checkbox}
 							type="checkbox"
-							onclick={toggleCheck}
+							onclick={handleToggleSelect}
 						/>
 					</Show>
 				</div>
