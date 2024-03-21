@@ -37,6 +37,7 @@ export default function IssueListItem(props: {
 	issue: Issue & { selected: boolean };
 	editIssue: (issue: Issue) => void;
 	toggleSelect: (checkbox: HTMLInputElement, path: string) => void;
+	deleteAction: (issue: Issue & { selected: boolean }) => void;
 	app: App;
 }) {
 	const [hovered, setHovered] = createSignal(false);
@@ -94,11 +95,7 @@ export default function IssueListItem(props: {
 			item.setTitle("Delete")
 				.setSection("danger")
 				.setIcon("trash-2")
-				.onClick(() =>
-					new DeleteModal(props.app, () =>
-						console.log("delete")
-					).open()
-				);
+				.onClick(() => props.deleteAction(props.issue));
 		});
 
 		menu.showAtMouseEvent(e);

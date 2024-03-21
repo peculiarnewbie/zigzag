@@ -49,7 +49,7 @@ export type PriorityIconsType =
 export type Issue = {
 	file: TFile;
 	title: string;
-	description: string;
+	description?: string;
 	status: StatusType;
 	priority: PriorityType;
 	created: string;

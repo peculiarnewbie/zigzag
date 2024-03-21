@@ -69,13 +69,45 @@ export default function Zigzag(props: { app: App }) {
 		}
 	};
 
+	const unselectAll = () => {
+		setStore(
+			"issues",
+			(issues) => !issues.selected,
+			produce((prev) => (prev.selected = false))
+		);
+	};
+
 	const openAddIssue = () => {
 		new AddIssueModal(props.app).open();
+	};
+
+	const deleteIssue = (issues: TFile[]) => {
+		issues.forEach((item) => {
+			props.app.vault.delete(item);
+		});
+	};
+
+	const deleteAction = (issue: IssueUIType) => {
+		const filesToDelete: TFile[] = [];
+		console.log(issue.selected);
+		if (!issue.selected) {
+			unselectAll();
+			filesToDelete.push(issue.file);
+			console.log("pushing", issue.file);
+		} else {
+			store.issues.forEach((item) => {
+				console.log(item.selected);
+				if (item.selected) filesToDelete.push(item.file);
+			});
+		}
+		console.log("deleting", filesToDelete);
+		new DeleteModal(props.app, () => deleteIssue(filesToDelete)).open();
 	};
 
 	createEffect(() => {
 		props.app.vault.on("rename", pullIssues);
 		props.app.metadataCache.on("changed", pullIssues);
+		props.app.vault.on("delete", pullIssues);
 
 		pullIssues();
 	});
@@ -101,6 +133,7 @@ export default function Zigzag(props: { app: App }) {
 							editIssue={editIssue}
 							app={props.app}
 							toggleSelect={toggleSelect}
+							deleteAction={deleteAction}
 						/>
 					)}
 				</For>
@@ -146,12 +179,13 @@ export const parseIssue = async (
 			}
 
 			const descriptionSection =
-				fileCache.sections[descriptionIndex].position;
-
-			description = content.slice(
-				descriptionSection.start.offset,
-				descriptionSection.end.offset
-			);
+				fileCache.sections[descriptionIndex]?.position;
+			if (descriptionSection) {
+				description = content.slice(
+					descriptionSection.start.offset,
+					descriptionSection.end.offset
+				);
+			} else description = "";
 		}
 	}
 
@@ -167,7 +201,7 @@ export const parseIssue = async (
 	return { ...issue, selected: false } as IssueUIType;
 };
 
-function DeleteView(props: { cancel: () => void; action: () => void }) {
+function DeleteView(props: { close: () => void; action: () => void }) {
 	return (
 		<div>
 			<div style={{ "text-align": "center" }}>
@@ -181,8 +215,14 @@ function DeleteView(props: { cancel: () => void; action: () => void }) {
 					"--pt": 5,
 				})}
 			>
-				<button onclick={props.cancel}>Cancel</button>
-				<button class="mod-cta" onclick={props.action}>
+				<button onclick={props.close}>Cancel</button>
+				<button
+					class="mod-cta"
+					onclick={() => {
+						props.action();
+						props.close();
+					}}
+				>
 					Delete
 				</button>
 			</div>
@@ -204,7 +244,7 @@ export class DeleteModal extends Modal {
 
 		render(
 			() =>
-				DeleteView({ cancel: () => this.close(), action: this.action }),
+				DeleteView({ close: () => this.close(), action: this.action }),
 			contentEl
 		);
 	}
