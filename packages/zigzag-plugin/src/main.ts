@@ -63,6 +63,15 @@ export default class MyPlugin extends Plugin {
 		const statusBarItemEl = this.addStatusBarItem();
 		statusBarItemEl.setText("Status Bar Text");
 
+		this.addCommand({
+			id: "zigzag-add-issue",
+			name: "Add Issue",
+			callback: () => {
+				console.log("open add issue modal");
+				new AddIssueModal(this.app).open();
+			},
+		});
+
 		this.registerView(
 			"zigzag-view",
 			(leaf) =>
@@ -72,14 +81,6 @@ export default class MyPlugin extends Plugin {
 					this.app
 				))
 		);
-
-		this.addCommand({
-			id: "zigzag",
-			name: "zigzag",
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-			},
-		});
 
 		const testPatch = {
 			// We will discuss these two fields in later steps.

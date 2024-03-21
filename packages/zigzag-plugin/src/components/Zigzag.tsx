@@ -72,7 +72,7 @@ export default function Zigzag(props: { app: App }) {
 	const unselectAll = () => {
 		setStore(
 			"issues",
-			(issues) => !issues.selected,
+			(issues) => issues.selected,
 			produce((prev) => (prev.selected = false))
 		);
 	};
