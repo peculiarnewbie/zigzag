@@ -4,7 +4,7 @@ import { IconStyle, setupIcon } from "./style";
 
 export function PriorityIcon(props: {
 	priority: PriorityType;
-	changePriority: (e: MouseEvent) => void;
+	changePriority?: (e: MouseEvent) => void;
 }) {
 	let el!: HTMLDivElement;
 
@@ -19,7 +19,7 @@ export function PriorityIcon(props: {
 
 	return (
 		<div
-			class="metadata-property-icon"
+			class={`${props.changePriority ? "metadata-property-icon" : ""} `}
 			style={IconStyle()}
 			ref={el}
 			onclick={props.changePriority}

@@ -1,8 +1,16 @@
 import { css } from "src/css";
 import { createEffect, createSignal } from "solid-js";
 import { Menu, Notice } from "obsidian";
-import { PriorityKeys, PriorityType, StatusKeys, StatusType } from "src/types";
+import {
+	Issue,
+	PriorityKeys,
+	PriorityType,
+	StatusKeys,
+	StatusType,
+} from "src/types";
 import { changePriority, changeStatus } from "../ContextMenus/ContextMenu";
+import { StatusIcon } from "../Icons/StatusIcon";
+import { PriorityIcon } from "../Icons/PriorityIcon";
 
 export default function AddIssue() {
 	let parent!: HTMLDivElement;
@@ -12,6 +20,8 @@ export default function AddIssue() {
 	const [priority, setPriority] = createSignal<PriorityType>(
 		PriorityKeys.NoPriority
 	);
+	const [title, setTitle] = createSignal("");
+	const [description, setDescription] = createSignal("");
 
 	const checkEmpty = (e: InputEvent) => {
 		const el = e.target as HTMLDivElement;
@@ -27,6 +37,18 @@ export default function AddIssue() {
 				`${parent.clientHeight / 2 - initialHeight / 2}px`
 			);
 		}
+	};
+
+	const createIssue = () => {
+		const issue: Issue = {
+			path: title(),
+			title: title(),
+			description: description(),
+			status: status(),
+			priority: priority(),
+			created: "2024-02-01",
+		};
+		console.log(issue);
 	};
 
 	createEffect(() => {
@@ -51,15 +73,14 @@ export default function AddIssue() {
 				<div
 					style={css({
 						"--border": "var(--border_standard)",
+						"--border-radius": "var(--radii_sm)",
 						"--p": 1,
 					})}
 				>
 					code
 				</div>
 				<div>{">"}</div>
-				<div>
-					New Issue {status().value} {priority().value}
-				</div>
+				<div>New Issue</div>
 			</div>
 			<div style={css({ "--h": 2 })} />
 			<div
@@ -72,7 +93,10 @@ export default function AddIssue() {
 				class=" editor-placeholder"
 				contentEditable={true}
 				data-empty-text="Issue Title"
-				oninput={checkEmpty}
+				oninput={(e) => {
+					checkEmpty(e);
+					setTitle((e.target as HTMLDivElement).innerText);
+				}}
 			/>
 			<div style={css({ "--h": 2.5 })} />
 			<div
@@ -90,7 +114,10 @@ export default function AddIssue() {
 					class="editor-placeholder"
 					contentEditable={true}
 					data-empty-text="Add description..."
-					oninput={checkEmpty}
+					oninput={(e) => {
+						checkEmpty(e);
+						setDescription((e.target as HTMLDivElement).innerText);
+					}}
 				/>
 			</div>
 			<div
@@ -101,12 +128,30 @@ export default function AddIssue() {
 					"--gap": 2,
 				})}
 			>
-				<button onclick={(e) => changeStatus(e, setStatus)}>
-					Backlog
+				<button
+					onclick={(e) => changeStatus(e, setStatus)}
+					style={{
+						...css({ "--display": "flex", "--gap": 1 }),
+						height: "26px",
+						"padding-left": "8px",
+						"padding-right": "8px",
+					}}
+				>
+					<StatusIcon status={status()} />
+					<div>{status().value}</div>
 				</button>
 				<button
 					onclick={(e) => changePriority(e, setPriority)}
-				></button>
+					style={{
+						...css({ "--display": "flex", "--gap": 1 }),
+						height: "26px",
+						"padding-left": "8px",
+						"padding-right": "8px",
+					}}
+				>
+					<PriorityIcon priority={priority()} />
+					<div>{priority().value}</div>
+				</button>
 			</div>
 			<div
 				style={{
@@ -139,7 +184,9 @@ export default function AddIssue() {
 					</div>
 					<div>create more</div>
 				</div>
-				<button class="mod-cta">Create Issue</button>
+				<button class="mod-cta" onclick={createIssue}>
+					Create Issue
+				</button>
 			</div>
 		</div>
 	);

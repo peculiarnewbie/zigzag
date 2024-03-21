@@ -21,7 +21,7 @@ export const StatusKeys = {
 	},
 	Done: { value: "Done", icon: "check-circle", color: "interactive-accent" },
 	Cancelled: { value: "Cancelled", icon: "x-circle", color: "" },
-	Duplicate: { value: "Duplicate", icon: "", color: "" },
+	Duplicate: { value: "Duplicate", icon: "x-circle", color: "" },
 } as const;
 
 export type StatusType = (typeof StatusKeys)[keyof typeof StatusKeys];
