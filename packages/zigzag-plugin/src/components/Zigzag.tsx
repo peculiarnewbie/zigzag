@@ -1,13 +1,14 @@
 import { For, createContext, createEffect, createSignal } from "solid-js";
 import { css } from "@tokenami/css";
-import { App, MetadataCache, TFile, Vault, getAllTags } from "obsidian";
+import { App, MetadataCache, Modal, TFile, Vault, getAllTags } from "obsidian";
 import { Issue, PriorityType, StatusType } from "src/types";
 import IssueListItem from "./IssueListItem";
 import IssueListCategory from "./IssueListCategory";
-import { openAddIssueModal } from "src/main";
 import { getStatus } from "./Icons/StatusIcon";
 import { getPriority } from "./Icons/PriorityIcon";
 import { createStore, produce } from "solid-js/store";
+import { AddIssueModal } from "./AddIssueModal/AddIssueModal";
+import { render } from "solid-js/web";
 
 export default function Zigzag(props: { app: App }) {
 	const VaultContext = createContext();
@@ -47,12 +48,8 @@ export default function Zigzag(props: { app: App }) {
 		);
 	};
 
-	const addIssue = (issue: Issue) => {
-		setStore("issues", store.issues.length, issue);
-	};
-
 	const openAddIssue = () => {
-		openAddIssueModal(props.app);
+		new AddIssueModal(props.app).open();
 	};
 
 	createEffect(() => {
@@ -147,3 +144,51 @@ export const parseIssue = async (
 
 	return issue;
 };
+
+function DeleteView(props: { cancel: () => void; action: () => void }) {
+	return (
+		<div>
+			<div style={{ "text-align": "center" }}>
+				Are you sure you want to delete these items?
+			</div>
+			<div
+				style={css({
+					"--display": "flex",
+					"--gap": 2,
+					"--set-x": "center",
+					"--pt": 5,
+				})}
+			>
+				<button onclick={props.cancel}>Cancel</button>
+				<button class="mod-cta" onclick={props.action}>
+					Delete
+				</button>
+			</div>
+		</div>
+	);
+}
+
+export class DeleteModal extends Modal {
+	app: App;
+	action: () => void;
+
+	constructor(app: App, action: () => void) {
+		super(app);
+		this.action = action;
+	}
+
+	onOpen() {
+		let { contentEl } = this;
+
+		render(
+			() =>
+				DeleteView({ cancel: () => this.close(), action: this.action }),
+			contentEl
+		);
+	}
+
+	onClose() {
+		let { contentEl } = this;
+		contentEl.empty();
+	}
+}

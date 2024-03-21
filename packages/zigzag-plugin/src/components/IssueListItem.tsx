@@ -1,4 +1,4 @@
-import { App, Vault, moment, setIcon, setTooltip } from "obsidian";
+import { App, Menu, Vault, moment, setIcon, setTooltip } from "obsidian";
 import { Setter, Show, createEffect, createSignal } from "solid-js";
 import { css } from "src/css";
 import {
@@ -11,7 +11,27 @@ import {
 import { StatusIcon } from "./Icons/StatusIcon";
 import { PriorityIcon } from "./Icons/PriorityIcon";
 import { changePriority, changeStatus } from "./ContextMenus/ContextMenu";
-import { parseIssue } from "./Zigzag";
+import { DeleteModal, parseIssue } from "./Zigzag";
+
+const ItemStyle = css.compose({
+	"--display": "flex",
+	"--set-x": "space-between",
+	"--border-bottom": "var(--border_standard)",
+	"--py": 1,
+	"--pl": 1,
+	"--pr": 5.25,
+	"--hover_bg": "var(--color_bg-hover)",
+
+	variants: {
+		selected: {
+			false: { "--hover_bg": "var(--color_bg-hover)" },
+			true: {
+				"--bg": "var(--color_interactive-normal)",
+				"--hover_bg": "var(--color_interactive-hover)",
+			},
+		},
+	},
+});
 
 export default function IssueListItem(props: {
 	issue: Issue;
@@ -23,7 +43,8 @@ export default function IssueListItem(props: {
 
 	let checkbox!: HTMLInputElement;
 
-	const toggleCheck = () => {
+	const toggleCheck = (e: MouseEvent) => {
+		e.stopPropagation();
 		if (checkbox === undefined) return;
 		const checked = checkbox.dataset.checked;
 		if (checked === "false" || checked == undefined) {
@@ -79,20 +100,34 @@ export default function IssueListItem(props: {
 		props.app.workspace.getLeaf().openFile(props.issue.file);
 	};
 
+	const openContext = (e: MouseEvent) => {
+		const menu = new Menu();
+
+		menu.addItem((item) => {
+			item.setTitle("Delete")
+				.setSection("danger")
+				.setIcon("trash-2")
+				.onClick(() =>
+					new DeleteModal(props.app, () =>
+						console.log("delete")
+					).open()
+				);
+		});
+
+		menu.showAtMouseEvent(e);
+	};
+
 	return (
 		<div
-			style={css({
-				"--display": "flex",
-				"--set-x": "space-between",
-				"--border-bottom": "var(--border_standard)",
-				"--py": 1,
-				"--pl": 1,
-				"--pr": 5.25,
-				"--hover_bg": "var(--color_bg-hover)",
-			})}
+			style={
+				selected()
+					? ItemStyle({ selected: true })
+					: ItemStyle({ selected: false })
+			}
 			onpointerenter={() => setHovered(true)}
 			onpointerleave={() => setHovered(false)}
 			onclick={openFile}
+			oncontextmenu={openContext}
 		>
 			<div
 				style={css({
