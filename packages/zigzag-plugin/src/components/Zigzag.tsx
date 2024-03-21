@@ -39,7 +39,7 @@ export default function Zigzag(props: { app: App }) {
 	const editIssue = (issue: Issue) => {
 		setStore(
 			"issues",
-			(issues) => issues.path === issue.path,
+			(issues) => issues.file.path === issue.file.path,
 			produce((prev) => {
 				prev.priority = issue.priority;
 				prev.status = issue.status;
@@ -78,7 +78,11 @@ export default function Zigzag(props: { app: App }) {
 				/>
 				<For each={store.issues}>
 					{(issue) => (
-						<IssueListItem issue={issue} editIssue={editIssue} />
+						<IssueListItem
+							issue={issue}
+							editIssue={editIssue}
+							app={props.app}
+						/>
 					)}
 				</For>
 			</div>
@@ -86,7 +90,11 @@ export default function Zigzag(props: { app: App }) {
 	);
 }
 
-const parseIssue = async (file: TFile, vault: Vault, cache: MetadataCache) => {
+export const parseIssue = async (
+	file: TFile,
+	vault: Vault,
+	cache: MetadataCache
+) => {
 	const fileCache = cache.getFileCache(file);
 	const content = await vault.read(file);
 
@@ -129,7 +137,7 @@ const parseIssue = async (file: TFile, vault: Vault, cache: MetadataCache) => {
 	}
 
 	const issue: Issue = {
-		path: file.name,
+		file: file,
 		title: file.basename,
 		status: status as StatusType,
 		priority: priority as PriorityType,

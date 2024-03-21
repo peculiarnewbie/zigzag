@@ -15,6 +15,7 @@ export default createConfig({
 			"text-muted": "var(--text-muted)",
 			"text-faint": "var(--text-faint)",
 			"bg-primary-alt": "var(--background-primary-alt)",
+			"bg-hover": "var(--background-modifier-hover)",
 		},
 		ease: {},
 		"font-size": {
