@@ -15,8 +15,8 @@ export const setupIcon = (
 	color?: string,
 	tooltip?: string
 ) => {
-	console.log(el, icon);
 	setIcon(el, icon);
 	if (color) el.style.setProperty("--icon-color", `var(--${color})`);
+	else el.style.removeProperty("--icon-color");
 	if (tooltip) setTooltip(el, "Change status");
 };

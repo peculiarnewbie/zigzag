@@ -58,7 +58,7 @@ export default class MyPlugin extends Plugin {
 
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon("bracket-glyph", "Zigzag", () =>
-			this.toggleZigZag(),
+			this.toggleZigZag()
 		);
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass("my-plugin-ribbon-class");
@@ -73,8 +73,8 @@ export default class MyPlugin extends Plugin {
 				(this.zigzagView = new ZigzagView(
 					leaf,
 					"bracket-glyph",
-					this.app,
-				)),
+					this.app
+				))
 		);
 
 		this.addCommand({
@@ -144,13 +144,10 @@ export default class MyPlugin extends Plugin {
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, "click", (evt: MouseEvent) => {
-			console.log("click", evt);
-		});
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		this.registerInterval(
-			window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000),
+			window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000)
 		);
 	}
 
@@ -160,7 +157,7 @@ export default class MyPlugin extends Plugin {
 		this.settings = Object.assign(
 			{},
 			DEFAULT_SETTINGS,
-			await this.loadData(),
+			await this.loadData()
 		);
 	}
 
@@ -208,7 +205,7 @@ class SampleSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.workerurl = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 	}
 }

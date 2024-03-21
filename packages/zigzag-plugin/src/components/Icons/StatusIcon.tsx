@@ -4,25 +4,25 @@ import { IconStyle, setupIcon } from "./style";
 
 export function StatusIcon(props: {
 	status: StatusType;
-	interactive?: boolean;
+	changeStatus?: (e: MouseEvent) => void;
 }) {
 	let el!: HTMLDivElement;
 
 	createEffect(() => {
-		console.log("hey", props);
 		setupIcon(
 			el,
 			props.status.icon,
 			props.status.color,
-			props.interactive ? "Change status" : undefined
+			props.changeStatus ? "Change status" : undefined
 		);
 	});
 
 	return (
 		<div
-			class={`${props.interactive ? "metadata-property-icon" : ""} `}
+			class={`${props.changeStatus ? "metadata-property-icon" : ""} `}
 			style={IconStyle()}
 			ref={el}
+			onclick={props.changeStatus}
 		></div>
 	);
 }

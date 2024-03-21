@@ -1,23 +1,17 @@
 import { For, createContext, createEffect, createSignal } from "solid-js";
-import { css, type TokenamiStyle } from "@tokenami/css";
+import { css } from "@tokenami/css";
 import { App, MetadataCache, TFile, Vault, getAllTags } from "obsidian";
-import {
-	Issue,
-	PriorityKeys,
-	PriorityType,
-	StatusKeys,
-	StatusType,
-} from "src/types";
+import { Issue, PriorityType, StatusType } from "src/types";
 import IssueListItem from "./IssueListItem";
 import IssueListCategory from "./IssueListCategory";
 import { openAddIssueModal } from "src/main";
 import { getStatus } from "./Icons/StatusIcon";
 import { getPriority } from "./Icons/PriorityIcon";
+import { createStore, produce } from "solid-js/store";
 
 export default function Zigzag(props: { app: App }) {
 	const VaultContext = createContext();
-	let checkbox: HTMLInputElement | undefined;
-	const [issues, setIssues] = createSignal<Issue[]>();
+	const [store, setStore] = createStore({ issues: [] as Issue[] });
 
 	const pullIssues = async () => {
 		const issuesFiles = await Promise.all(
@@ -39,7 +33,22 @@ export default function Zigzag(props: { app: App }) {
 			)
 		);
 
-		setIssues(issuesFromVault);
+		setStore({ issues: issuesFromVault });
+	};
+
+	const editIssue = (issue: Issue) => {
+		setStore(
+			"issues",
+			(issues) => issues.path === issue.path,
+			produce((prev) => {
+				prev.priority = issue.priority;
+				prev.status = issue.status;
+			})
+		);
+	};
+
+	const addIssue = (issue: Issue) => {
+		setStore("issues", store.issues.length, issue);
 	};
 
 	const openAddIssue = () => {
@@ -64,11 +73,13 @@ export default function Zigzag(props: { app: App }) {
 				}}
 			>
 				<IssueListCategory
-					itemsCount={issues()?.length ?? 0}
+					itemsCount={store.issues.length ?? 0}
 					openAddIssueModal={openAddIssue}
 				/>
-				<For each={issues()}>
-					{(issue) => <IssueListItem issue={issue} />}
+				<For each={store.issues}>
+					{(issue) => (
+						<IssueListItem issue={issue} editIssue={editIssue} />
+					)}
 				</For>
 			</div>
 		</VaultContext.Provider>
@@ -118,6 +129,7 @@ const parseIssue = async (file: TFile, vault: Vault, cache: MetadataCache) => {
 	}
 
 	const issue: Issue = {
+		path: file.name,
 		title: file.basename,
 		status: status as StatusType,
 		priority: priority as PriorityType,

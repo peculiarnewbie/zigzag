@@ -31,7 +31,7 @@ export type StatusIconsType =
 	(typeof StatusKeys)[keyof typeof StatusKeys]["icon"];
 
 export const PriorityKeys = {
-	NoPriority: { value: "No Priorityu", icon: "minus", color: "" },
+	NoPriority: { value: "No Priority", icon: "minus", color: "" },
 	Urgent: { value: "Urgent", icon: "alert-octagon", color: "text-error" },
 	High: { value: "High", icon: "signal", color: "" },
 	Medium: { value: "Medium", icon: "signal-high", color: "" },
@@ -45,6 +45,7 @@ export type PriorityIconsType =
 	(typeof PriorityKeys)[keyof typeof PriorityKeys]["icon"];
 
 export type Issue = {
+	path: string;
 	title: string;
 	description: string;
 	status: StatusType;
